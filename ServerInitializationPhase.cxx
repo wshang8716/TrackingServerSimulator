@@ -69,5 +69,8 @@ int ServerInitializationPhase::MessageHandler(igtl::MessageHeader* headerMsg)
 
 int ServerInitializationPhase::TimerHandler(long timestamp)
 {
+
+  std::cerr << "ServerInitializationPhase::TimerHandler() is called" << std::endl;
   return 0;
+
 }

@@ -22,6 +22,7 @@
 #include "igtlServerSocket.h"
 #include "igtlMultiThreader.h"
 #include "igtlOSUtil.h"
+#include "igtlTimeStamp.h"
 
 #include "ServerPhaseBase.h"
 #include "ServerUndefinedPhase.h"
@@ -42,9 +43,11 @@ enum {
   SESSION_INACTIVE
 };
 
+static int TimerInterval;
 static int SessionStatus; // SESSION_*
 static WorkphaseList PhaseList;
 static ServerPhaseBase* CurrentWorkphase; // Current workphase
+
 
 static void MonitorThread(void * ptr);
 int Session(igtl::Socket * socket, WorkphaseList& PhaseList);
@@ -53,6 +56,7 @@ int main(int argc, char* argv[])
 {
 
 
+  TimerInterval = 100; // 100ms
   SessionStatus = SESSION_INACTIVE;
 
   //------------------------------------------------------------
@@ -176,20 +180,35 @@ int main(int argc, char* argv[])
 
 }
 
+
 void MonitorThread(void * ptr)
 {
   igtl::MultiThreader::ThreadInfo* info = 
     static_cast<igtl::MultiThreader::ThreadInfo*>(ptr);
 
+  igtl::TimeStamp::Pointer timeStamp = igtl::TimeStamp::New();
+  igtlUint64 intervalNano = (igtlUint64)TimerInterval * 1000000; // Convert from ms to ns
+  igtlUint64 time0;
+  igtlUint64 time1;
+
   WorkphaseList* PhaseList = static_cast<WorkphaseList *>(info->UserData);
+
   while (SessionStatus == SESSION_ACTIVE)
     {
     if (CurrentWorkphase != NULL)
       {
-      CurrentWorkphase->TimerHandler(10); // TODO: Give a correct time stamp.
-      igtl::Sleep(100); // wait for 100 ms
+      timeStamp->GetTime();
+      time0 = timeStamp->GetTimeStampInNanoseconds();
+      CurrentWorkphase->TimerHandler(time0);
+      timeStamp->GetTime();
+      time1 = timeStamp->GetTimeStampInNanoseconds();
+
+      // Elapsed time
+      igtlUint64 elapsedTime = time1 - time0;
+      igtl::Sleep((intervalNano-elapsedTime)*1000000);
       }
     }
+    
 }
 
 
