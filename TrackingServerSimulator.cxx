@@ -20,6 +20,8 @@
 #include <vector>
 
 #include "igtlServerSocket.h"
+#include "igtlMultiThreader.h"
+#include "igtlOSUtil.h"
 
 #include "ServerPhaseBase.h"
 #include "ServerUndefinedPhase.h"
@@ -33,26 +35,39 @@
 //#include "ServerSimulatorEmergencyPhase.h"
 #include "ServerStatus.h"
 
-
 typedef std::vector< ServerPhaseBase* > WorkphaseList;
 
-int Session(igtl::Socket * socket, WorkphaseList& wlist);
+enum {
+  SESSION_ACTIVE,
+  SESSION_INACTIVE
+};
+
+static int SessionStatus; // SESSION_*
+static WorkphaseList PhaseList;
+static ServerPhaseBase* CurrentWorkphase; // Current workphase
+
+static void MonitorThread(void * ptr);
+int Session(igtl::Socket * socket, WorkphaseList& PhaseList);
 
 int main(int argc, char* argv[])
 {
 
+
+  SessionStatus = SESSION_INACTIVE;
+
   //------------------------------------------------------------
   // Setup workphases
-  WorkphaseList wlist;
-  wlist.push_back(new ServerUndefinedPhase);
-  wlist.push_back(new ServerInitializationPhase);
-  //wlist.push_back(new ServerPlanningPhase);
-  //wlist.push_back(new ServerCalibrationPhase);
-  //wlist.push_back(new ServerTargetingPhase);
-  //wlist.push_back(new ServerMoveToTargetPhase);
-  //wlist.push_back(new ServerManualPhase);
-  //wlist.push_back(new ServerStopPhase);
-  //wlist.push_back(new ServerEmergencyPhase);
+  PhaseList.push_back(new ServerUndefinedPhase);
+  PhaseList.push_back(new ServerInitializationPhase);
+  //PhaseList.push_back(new ServerPlanningPhase);
+  //PhaseList.push_back(new ServerCalibrationPhase);
+  //PhaseList.push_back(new ServerTargetingPhase);
+  //PhaseList.push_back(new ServerMoveToTargetPhase);
+  //PhaseList.push_back(new ServerManualPhase);
+  //PhaseList.push_back(new ServerStopPhase);
+  //PhaseList.push_back(new ServerEmergencyPhase);
+
+  CurrentWorkphase = NULL;
 
   std::cerr << std::endl;
 
@@ -68,7 +83,7 @@ int main(int argc, char* argv[])
     std::cerr << "  Available defect types:" <<std::endl;
 
     WorkphaseList::iterator wit;
-    for (wit = wlist.begin(); wit != wlist.end(); wit ++)
+    for (wit = PhaseList.begin(); wit != PhaseList.end(); wit ++)
       {
       std::list< std::string > typeList;
       typeList = (*wit)->GetDefectTypeList();
@@ -98,7 +113,7 @@ int main(int argc, char* argv[])
       std::string phase = astr.substr(0, found);
       std::string type  = astr.substr(found+1, std::string::npos);
       WorkphaseList::iterator witer;
-      for (witer = wlist.begin(); witer != wlist.end(); witer ++)
+      for (witer = PhaseList.begin(); witer != PhaseList.end(); witer ++)
         {
         if (phase.compare((*witer)->Name()) == 0)
           {
@@ -112,7 +127,7 @@ int main(int argc, char* argv[])
   // List active defects
   std::cerr << "MESSAGE: Defect status:" << std::endl;
   WorkphaseList::iterator wit;
-  for (wit = wlist.begin(); wit != wlist.end(); wit ++)
+  for (wit = PhaseList.begin(); wit != PhaseList.end(); wit ++)
     {
     std::list< std::string > typeList;
     typeList = (*wit)->GetDefectTypeList();
@@ -146,7 +161,12 @@ int main(int argc, char* argv[])
     if (socket.IsNotNull()) // if client connected
       {
       std::cerr << "MESSAGE: Client connected. Starting a session..." << std::endl;
-      Session(socket, wlist);
+
+      SessionStatus = SESSION_ACTIVE;
+      igtl::MultiThreader::Pointer threader;
+      threader = igtl::MultiThreader::New();
+      threader->SpawnThread((igtl::ThreadFunctionType) &MonitorThread, &PhaseList);
+      Session(socket, PhaseList);
       }
     }
     
@@ -156,14 +176,31 @@ int main(int argc, char* argv[])
 
 }
 
-int Session(igtl::Socket * socket, WorkphaseList& wlist)
+void MonitorThread(void * ptr)
+{
+  igtl::MultiThreader::ThreadInfo* info = 
+    static_cast<igtl::MultiThreader::ThreadInfo*>(ptr);
+
+  WorkphaseList* PhaseList = static_cast<WorkphaseList *>(info->UserData);
+  while (SessionStatus == SESSION_ACTIVE)
+    {
+    if (CurrentWorkphase != NULL)
+      {
+      CurrentWorkphase->TimerHandler(10); // TODO: Give a correct time stamp.
+      igtl::Sleep(100); // wait for 100 ms
+      }
+    }
+}
+
+
+int Session(igtl::Socket * socket, WorkphaseList& PhaseList)
 {
   RobotStatus * rs = new RobotStatus();
 
   //------------------------------------------------------------
   // Set socket and robot status
   std::vector< ServerPhaseBase* >::iterator iter;
-  for (iter = wlist.begin(); iter != wlist.end(); iter ++)
+  for (iter = PhaseList.begin(); iter != PhaseList.end(); iter ++)
     {
     //std::cerr << "MESSAGE: Setting up " << (*iter)->Name() << " phase." << std::endl;
     (*iter)->SetSocket(socket);
@@ -172,7 +209,7 @@ int Session(igtl::Socket * socket, WorkphaseList& wlist)
 
   //------------------------------------------------------------
   // Set undefined phase as the current phase;
-  std::vector<  ServerPhaseBase* >::iterator currentPhase = wlist.begin();
+  std::vector<  ServerPhaseBase* >::iterator currentPhase = PhaseList.begin();
 
   int connect = 1;
 
@@ -188,7 +225,7 @@ int Session(igtl::Socket * socket, WorkphaseList& wlist)
       
       // Find the requested workphase
       std::vector<  ServerPhaseBase* >::iterator iter;
-      for (iter = wlist.begin(); iter != wlist.end(); iter ++)
+      for (iter = PhaseList.begin(); iter != PhaseList.end(); iter ++)
         {
         if (strcmp((*iter)->Name(), requestedWorkphase.c_str()) == 0)
           {
@@ -202,5 +239,6 @@ int Session(igtl::Socket * socket, WorkphaseList& wlist)
   
   return 1;
 }
+
 
 

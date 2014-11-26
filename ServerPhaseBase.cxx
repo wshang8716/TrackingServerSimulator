@@ -10,7 +10,6 @@
   PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
-=========================================================================*/
 
 #include "ServerPhaseBase.h"
 #include <string.h>
@@ -43,6 +42,11 @@ int ServerPhaseBase::Enter(const char* queryID)
 }
 
 
+int ServerPhaseBase::MessageHandler(igtl::MessageHeader* headerMsg)
+{
+  return 0;
+}
+
 int ServerPhaseBase::Process()
 {
   // Create a message buffer to receive header
@@ -56,12 +60,6 @@ int ServerPhaseBase::Process()
 
   return this->MessageHandler(headerMsg); // Returns 0, if a workhpase change is requested.
 
-}
-
-
-int ServerPhaseBase::MessageHandler(igtl::MessageHeader* headerMsg)
-{
-  return 0;
 }
 
 

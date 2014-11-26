@@ -87,3 +87,7 @@ int ServerUndefinedPhase::MessageHandler(igtl::MessageHeader* headerMsg)
     return 0;
 }
 
+int ServerUndefinedPhase::TimerHandler(long timestamp)
+{
+  return 0;
+}

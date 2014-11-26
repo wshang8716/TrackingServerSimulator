@@ -47,10 +47,14 @@ public:
   virtual int Process();
 
   // MessageHandler() defines workphase-specific message handling.
-  // The function needs to be implemented in child classes.
+  // The function must be implemented in the child classes.
   // MessageHandler() needs to check if any work phase change is requred. If it determins
   // that the work phase needs to be changed, it returns 1; othewise it returns 0.
-  virtual int MessageHandler(igtl::MessageHeader* headerMsg); // Message handler
+  virtual int MessageHandler(igtl::MessageHeader* headerMsg);
+
+  // TimerHandler() defines a process that needs to be called periodically during the TCP/IP session.
+  // The function must be defined in the child classes.
+  virtual int TimerHandler(long timestamp) = 0; 
 
   std::string GetNextWorkPhase() { return this->NextWorkphase; };
   std::string GetQueryID() { return this->QueryID; };

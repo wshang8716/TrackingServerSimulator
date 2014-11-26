@@ -66,3 +66,8 @@ int ServerInitializationPhase::MessageHandler(igtl::MessageHeader* headerMsg)
   return 0;
 }
 
+
+int ServerInitializationPhase::TimerHandler(long timestamp)
+{
+  return 0;
+}

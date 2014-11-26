@@ -30,6 +30,7 @@ public:
 
   virtual int Initialize();
   virtual int MessageHandler(igtl::MessageHeader* headerMsg);
+  virtual int TimerHandler(long timestamp); 
 
 protected:
 
