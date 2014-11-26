@@ -16,6 +16,7 @@ set(TRACKING_SERVER_SOURCE
   ServerInitializationPhase.cxx
   TrackingServerSimulator.cxx
   ServerStatus.cxx
+  SessionController.cxx
 )
 
 ADD_EXECUTABLE(TrackingServerSimulator  ${TRACKING_SERVER_SOURCE})

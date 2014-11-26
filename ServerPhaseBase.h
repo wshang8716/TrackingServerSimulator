@@ -29,7 +29,7 @@ class ServerPhaseBase : public IGTLCommunicationBase
 public:
 
   ServerPhaseBase();
-  ~ServerPhaseBase();
+  virtual ~ServerPhaseBase();
 
   virtual const char* Name()=0;
 

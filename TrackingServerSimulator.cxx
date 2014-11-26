@@ -35,6 +35,7 @@
 //#include "ServerSimulatorStopPhase.h"
 //#include "ServerSimulatorEmergencyPhase.h"
 #include "ServerStatus.h"
+#include "SessionController.h"
 
 typedef std::vector< ServerPhaseBase* > WorkphaseList;
 
@@ -55,25 +56,19 @@ int Session(igtl::Socket * socket, WorkphaseList& PhaseList);
 int main(int argc, char* argv[])
 {
 
-
-  TimerInterval = 100; // 100ms
-  SessionStatus = SESSION_INACTIVE;
+  SessionController * controller = new SessionController;
 
   //------------------------------------------------------------
   // Setup workphases
-  PhaseList.push_back(new ServerUndefinedPhase);
-  PhaseList.push_back(new ServerInitializationPhase);
-  //PhaseList.push_back(new ServerPlanningPhase);
-  //PhaseList.push_back(new ServerCalibrationPhase);
-  //PhaseList.push_back(new ServerTargetingPhase);
-  //PhaseList.push_back(new ServerMoveToTargetPhase);
-  //PhaseList.push_back(new ServerManualPhase);
-  //PhaseList.push_back(new ServerStopPhase);
-  //PhaseList.push_back(new ServerEmergencyPhase);
-
-  CurrentWorkphase = NULL;
-
-  std::cerr << std::endl;
+  controller->RegisterPhase(new ServerUndefinedPhase);
+  controller->RegisterPhase(new ServerInitializationPhase);
+  //controller->RegisterPhase(new ServerPlanningPhase);
+  //controller->RegisterPhase(new ServerCalibrationPhase);
+  //controller->RegisterPhase(new ServerTargetingPhase);
+  //controller->RegisterPhase(new ServerMoveToTargetPhase);
+  //controller->RegisterPhase(new ServerManualPhase);
+  //controller->RegisterPhase(new ServerStopPhase);
+  //controller->RegisterPhase(new ServerEmergencyPhase);
 
   //------------------------------------------------------------
   // Parse Arguments
@@ -86,18 +81,7 @@ int main(int argc, char* argv[])
     std::cerr << std::endl;
     std::cerr << "  Available defect types:" <<std::endl;
 
-    WorkphaseList::iterator wit;
-    for (wit = PhaseList.begin(); wit != PhaseList.end(); wit ++)
-      {
-      std::list< std::string > typeList;
-      typeList = (*wit)->GetDefectTypeList();
-      std::list< std::string >::iterator tit;
-      for (tit = typeList.begin(); tit != typeList.end(); tit ++)
-        {
-        std::cerr << "    " << (*wit)->Name() << ":" << (*tit) << "  :  "
-                  << (*wit)->GetDefectTypeDescription((*tit).c_str()) << std::endl;
-        }
-      }
+    controller->PrintAvailableDefectTypes();
     std::cerr << std::endl;
 
     exit(0);
@@ -116,13 +100,9 @@ int main(int argc, char* argv[])
       {
       std::string phase = astr.substr(0, found);
       std::string type  = astr.substr(found+1, std::string::npos);
-      WorkphaseList::iterator witer;
-      for (witer = PhaseList.begin(); witer != PhaseList.end(); witer ++)
+      if (!controller->ActivateDefect(phase.c_str(), type.c_str()))
         {
-        if (phase.compare((*witer)->Name()) == 0)
-          {
-          (*witer)->SetDefectStatus(type.c_str(), 1);
-          }
+        std::cerr << "ERROR: Illegal defect phase/type: " << phase << ": " << type << std::endl;
         }
       }
     }
@@ -130,134 +110,13 @@ int main(int argc, char* argv[])
   //------------------------------------------------------------
   // List active defects
   std::cerr << "MESSAGE: Defect status:" << std::endl;
-  WorkphaseList::iterator wit;
-  for (wit = PhaseList.begin(); wit != PhaseList.end(); wit ++)
-    {
-    std::list< std::string > typeList;
-    typeList = (*wit)->GetDefectTypeList();
-    std::list< std::string >::iterator tit;
-    for (tit = typeList.begin(); tit != typeList.end(); tit ++)
-      {
-      std::string status = (*wit)->GetDefectStatus((*tit).c_str())? "ON" : "OFF";
-      std::cerr << "MESSAGE:    " << (*wit)->Name() << ":" << (*tit) << "  :  "
-                << status << std::endl;
-      }
-    }
+  controller->PrintDefectStatus();
 
-  igtl::ServerSocket::Pointer serverSocket;
-  serverSocket = igtl::ServerSocket::New();
-  int r = serverSocket->CreateServer(port);
-
-  if (r < 0)
-    {
-    std::cerr << "ERROR: Cannot create a server socket." << std::endl;
-    exit(0);
-    }
-
-  igtl::Socket::Pointer socket;
-  
-  while (1)
-    {
-    //------------------------------------------------------------
-    // Waiting for Connection
-    socket = serverSocket->WaitForConnection(1000);
-    
-    if (socket.IsNotNull()) // if client connected
-      {
-      std::cerr << "MESSAGE: Client connected. Starting a session..." << std::endl;
-
-      SessionStatus = SESSION_ACTIVE;
-      igtl::MultiThreader::Pointer threader;
-      threader = igtl::MultiThreader::New();
-      threader->SpawnThread((igtl::ThreadFunctionType) &MonitorThread, &PhaseList);
-      Session(socket, PhaseList);
-      }
-    }
-    
   //------------------------------------------------------------
-  // Close connection (The example code never reaches to this section ...)
-  socket->CloseSocket();
+  // Run the session controller
+
+  controller->Run();
 
 }
-
-
-void MonitorThread(void * ptr)
-{
-  igtl::MultiThreader::ThreadInfo* info = 
-    static_cast<igtl::MultiThreader::ThreadInfo*>(ptr);
-
-  igtl::TimeStamp::Pointer timeStamp = igtl::TimeStamp::New();
-  igtlUint64 intervalNano = (igtlUint64)TimerInterval * 1000000; // Convert from ms to ns
-  igtlUint64 time0;
-  igtlUint64 time1;
-
-  WorkphaseList* PhaseList = static_cast<WorkphaseList *>(info->UserData);
-
-  while (SessionStatus == SESSION_ACTIVE)
-    {
-    if (CurrentWorkphase != NULL)
-      {
-      timeStamp->GetTime();
-      time0 = timeStamp->GetTimeStampInNanoseconds();
-      CurrentWorkphase->TimerHandler(time0);
-      timeStamp->GetTime();
-      time1 = timeStamp->GetTimeStampInNanoseconds();
-
-      // Elapsed time
-      igtlUint64 elapsedTime = time1 - time0;
-      igtl::Sleep((intervalNano-elapsedTime)*1000000);
-      }
-    }
-    
-}
-
-
-int Session(igtl::Socket * socket, WorkphaseList& PhaseList)
-{
-  RobotStatus * rs = new RobotStatus();
-
-  //------------------------------------------------------------
-  // Set socket and robot status
-  std::vector< ServerPhaseBase* >::iterator iter;
-  for (iter = PhaseList.begin(); iter != PhaseList.end(); iter ++)
-    {
-    //std::cerr << "MESSAGE: Setting up " << (*iter)->Name() << " phase." << std::endl;
-    (*iter)->SetSocket(socket);
-    (*iter)->SetRobotStatus(rs);
-    }
-
-  //------------------------------------------------------------
-  // Set undefined phase as the current phase;
-  std::vector<  ServerPhaseBase* >::iterator currentPhase = PhaseList.begin();
-
-  int connect = 1;
-
-  //------------------------------------------------------------
-  // loop
-  while (connect)
-    {
-    if ((*currentPhase)->Process())
-      {
-      // If Process() returns 1, phase change has been requested.
-      std::string requestedWorkphase = (*currentPhase)->GetNextWorkPhase();
-      std::string queryID = (*currentPhase)->GetQueryID();
-      
-      // Find the requested workphase
-      std::vector<  ServerPhaseBase* >::iterator iter;
-      for (iter = PhaseList.begin(); iter != PhaseList.end(); iter ++)
-        {
-        if (strcmp((*iter)->Name(), requestedWorkphase.c_str()) == 0)
-          {
-          // Change the current phase
-          currentPhase = iter;
-          (*currentPhase)->Enter(queryID.c_str()); // Initialization process
-          }
-        }
-      }
-    }
-  
-  return 1;
-}
-
 
 
