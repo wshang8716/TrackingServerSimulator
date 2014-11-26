@@ -1,6 +1,6 @@
 /*=========================================================================
 
-  Program:   BRP Prostate Robot: Testing Simulator (Client)
+  Program:   OpenIGTLink Communication Server: Main
   Language:  C++
 
   Copyright (c) Brigham and Women's Hospital. All rights reserved.
@@ -9,6 +9,7 @@
   the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
   PURPOSE.  See the above copyright notices for more information.
 
+=========================================================================*/
 =========================================================================*/
 
 #include "ServerPhaseBase.h"
