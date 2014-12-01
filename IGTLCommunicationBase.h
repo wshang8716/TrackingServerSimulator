@@ -17,6 +17,7 @@
 #include "igtlSocket.h"
 #include "igtlMath.h"
 #include "igtlMessageBase.h"
+#include "igtlMutexLock.h"
 
 class IGTLCommunicationBase
 {
@@ -35,6 +36,11 @@ public:
   virtual const char* Name()=0;
 
   void SetSocket(igtl::Socket* socket);
+
+  // PushMessage() sends the specified OpenIGTLink message. The PushMessage() is thread-safe
+  // -- it implements the semaphor internally, so that it can be called from multiple threads.
+  virtual int PushMessage(igtl::MessageBase* message);
+  
   int  ReceiveMessageHeader(igtl::MessageHeader* headerMsg, int timeout);
   int  SkipMesage(igtl::MessageHeader* headerMsg);
   void GetRandomTestMatrix(igtl::Matrix4x4& matrix);
@@ -57,10 +63,10 @@ public:
                                        const char* name, igtl::Matrix4x4& matrix,
                                        double err = 1.0e-10, int suffix=0);
 
-  int ReceiveTransform(igtl::MessageHeader* header, igtl::Matrix4x4& matrix);
-  int ReceiveString(igtl::MessageHeader* header, std::string& string);
-  int ReceiveStatus(igtl::MessageHeader* header, int& code, int& subcode,
-                    std::string& name, std::string& status);
+  int  ReceiveTransform(igtl::MessageHeader* header, igtl::Matrix4x4& matrix);
+  int  ReceiveString(igtl::MessageHeader* header, std::string& string);
+  int  ReceiveStatus(igtl::MessageHeader* header, int& code, int& subcode,
+                     std::string& name, std::string& status);
 
   void PrintMatrix(std::string prefix, igtl::Matrix4x4& matrix);
   int  ValidateMatrix(igtl::Matrix4x4& matrix);
@@ -72,6 +78,9 @@ public:
 protected:
 
   igtl::Socket::Pointer Socket;
+  
+  igtl::MutexLock::Pointer Mutex;
+
 };
 
 #endif //__IGTLCommunicationBase_h

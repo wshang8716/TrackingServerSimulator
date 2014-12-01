@@ -79,7 +79,7 @@ protected:
   int SessionStatus; // SESSION_*
 
   WorkphaseList PhaseList;
-  ServerPhaseBase* CurrentWorkphase; // Current workphase
+  ServerPhaseBase* CurrentPhase; // Current workphase
 
   bool ThreadAlive;
 

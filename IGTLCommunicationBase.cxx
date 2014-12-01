@@ -24,11 +24,30 @@
 
 IGTLCommunicationBase::IGTLCommunicationBase()
 {
+  this->Mutex = igtl::MutexLock::New();
 }
 
 
 IGTLCommunicationBase::~IGTLCommunicationBase()
 {
+}
+
+
+int IGTLCommunicationBase::PushMessage(igtl::MessageBase* message)
+{
+  int r;
+
+  r = 0;
+  this->Mutex->Lock();
+
+  if (message && this->Socket.IsNotNull() && this->Socket->GetConnected()) // if client connected
+    {
+    r = this->Socket->Send(message->GetPackPointer(), message->GetPackSize());
+    }
+
+  this->Mutex->Unlock();
+
+  return r;
 }
 
 
@@ -317,7 +336,8 @@ int IGTLCommunicationBase::SendStringMessage(const char* name, const char* strin
   stringMsg->SetString(string);
   stringMsg->SetTimeStamp(ts);
   stringMsg->Pack();
-  int r = this->Socket->Send(stringMsg->GetPackPointer(), stringMsg->GetPackSize());
+  //int r = this->Socket->Send(stringMsg->GetPackPointer(), stringMsg->GetPackSize());
+  int r = this->PushMessage(stringMsg);
   if (!r)
     {
     std::cerr << "ERROR: Sending STRING( " << name << ", " << string << " )" << std::endl;
@@ -343,7 +363,8 @@ int IGTLCommunicationBase::SendTransformMessage(const char* name, igtl::Matrix4x
   transMsg->SetTimeStamp(ts);
   transMsg->Pack();
 
-  int r = this->Socket->Send(transMsg->GetPackPointer(), transMsg->GetPackSize());
+  //int r = this->Socket->Send(transMsg->GetPackPointer(), transMsg->GetPackSize());
+  int r = this->PushMessage(transMsg);
   if (!r)
     {
     std::cerr << "ERROR: Sending TRANSFORM( " << name << " )" << std::endl;
@@ -383,7 +404,9 @@ int IGTLCommunicationBase::SendStatusMessage(const char* name, int Code, int Sub
     statusMsg->SetStatusString("");
     }
   statusMsg->Pack();
-  int r = this->Socket->Send(statusMsg->GetPackPointer(), statusMsg->GetPackSize());
+  //int r = this->Socket->Send(statusMsg->GetPackPointer(), statusMsg->GetPackSize());
+  int r = this->PushMessage(statusMsg);
+
   if (!r)
     {
     std::cerr << "ERROR: Sending STATUS( " << name << " )" << std::endl;

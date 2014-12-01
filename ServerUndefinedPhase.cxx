@@ -32,6 +32,7 @@ ServerUndefinedPhase::~ServerUndefinedPhase()
 {
 }
 
+
 int ServerUndefinedPhase::Initialize()
 {
   return 1;
@@ -89,5 +90,6 @@ int ServerUndefinedPhase::MessageHandler(igtl::MessageHeader* headerMsg)
 
 int ServerUndefinedPhase::TimerHandler(long timestamp)
 {
+  std::cerr << "ServerUndefinedPhase::TimerHandler(): " << timestamp << std::endl;
   return 0;
 }

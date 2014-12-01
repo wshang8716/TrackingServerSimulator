@@ -22,7 +22,8 @@
 #include "igtlTransformMessage.h"
 #include <cmath>
 
-ServerPhaseBase::ServerPhaseBase()
+
+ServerPhaseBase::ServerPhaseBase() : IGTLCommunicationBase()
 {
   this->NextWorkphase.clear();
   this->RStatus = NULL;
@@ -42,24 +43,28 @@ int ServerPhaseBase::Enter(const char* queryID)
 }
 
 
-int ServerPhaseBase::MessageHandler(igtl::MessageHeader* headerMsg)
-{
-  return 0;
-}
-
 int ServerPhaseBase::Process()
 {
+
+  // Set the name of the current workphase as the next one.
+  this->NextWorkphase = this->Name();
+
   // Create a message buffer to receive header
   igtl::MessageHeader::Pointer headerMsg;
   headerMsg = igtl::MessageHeader::New();
 
+  // Recieve a message header
   ReceiveMessageHeader(headerMsg, 0);
 
-  // Otherwise, the current workphase is the next workphase.
-  this->NextWorkphase = this->Name(); // Set the name of the current workphase as the next one.
-
+  // Handle the message
   return this->MessageHandler(headerMsg); // Returns 0, if a workhpase change is requested.
 
+}
+
+
+int ServerPhaseBase::MessageHandler(igtl::MessageHeader* headerMsg)
+{
+  return 0;
 }
 
 

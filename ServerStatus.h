@@ -11,8 +11,8 @@
 
 =========================================================================*/
 
-#ifndef __RobotStatus_h
-#define __RobotStatus_h
+#ifndef __ServerStatus_h
+#define __ServerStatus_h
 
 #include <string>
 #include <map>
@@ -22,11 +22,11 @@
 #include "igtlMessageBase.h"
 #include "IGTLCommunicationBase.h"
 
-class RobotStatus
+class ServerStatus
 {
 public:
-  RobotStatus();
-  ~RobotStatus();
+  ServerStatus();
+  ~ServerStatus();
   
   void SetCalibrationMatrix(igtl::Matrix4x4& matrix);
 
@@ -47,4 +47,4 @@ protected:
 
 
 
-#endif //__RobotStatus_h
+#endif //__ServerStatus_h

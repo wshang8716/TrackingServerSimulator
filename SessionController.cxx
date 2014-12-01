@@ -24,7 +24,7 @@ SessionController::SessionController()
   this->Socket = NULL;
   this->TimerInterval = 100; // Default 100 ms
   this->SessionStatus = SESSION_INACTIVE;
-  this->CurrentWorkphase = NULL;
+  this->CurrentPhase = NULL;
   this->ThreadAlive = 0;
   this->PortNumber = 18944;
 
@@ -87,7 +87,7 @@ ServerPhaseBase* SessionController::GetPhase(int i)
 
 ServerPhaseBase* SessionController::GetCurrentPhase()
 {
-  return this->CurrentWorkphase;
+  return this->CurrentPhase;
 }
 
 
@@ -176,6 +176,7 @@ int SessionController::Run()
       std::cerr << "MESSAGE: Client connected. Starting a session..." << std::endl;
 
       this->SessionStatus = SESSION_ACTIVE;
+
       igtl::MultiThreader::Pointer threader;
       threader = igtl::MultiThreader::New();
       threader->SpawnThread((igtl::ThreadFunctionType) &SessionController::MonitorThread, this);
@@ -200,6 +201,7 @@ int SessionController::Run()
 
 void SessionController::MonitorThread(void * ptr)
 {
+
   igtl::MultiThreader::ThreadInfo* info = 
     static_cast<igtl::MultiThreader::ThreadInfo*>(ptr);
 
@@ -218,20 +220,24 @@ void SessionController::MonitorThread(void * ptr)
     time0 = timeStamp->GetTimeStampInNanoseconds();
     
     // Call timer handler for the current workhpase
-    if (controller->CurrentWorkphase)
+    if (controller->CurrentPhase)
       {
-      controller->CurrentWorkphase->TimerHandler(time0);
+      controller->CurrentPhase->TimerHandler(time0);
       }
     
     // Get the end time
     timeStamp->GetTime();
     time1 = timeStamp->GetTimeStampInNanoseconds();
     
-    // Elapsed time
+    // Elapsed time (ns)
     igtlUint64 elapsedTime = time1 - time0;
+    igtlUint64 remainTime = intervalNano-elapsedTime;
     
     // Wait for the next cycle
-    igtl::Sleep((intervalNano-elapsedTime)*1000000);
+    if (remainTime)
+      {
+      igtl::Sleep(remainTime/1000000);
+      }
     }
 
   controller->ThreadAlive = false;
@@ -242,7 +248,7 @@ void SessionController::MonitorThread(void * ptr)
 int SessionController::Session()
 {
 
-  RobotStatus * rs = new RobotStatus();
+  ServerStatus * rs = new ServerStatus();
 
   //------------------------------------------------------------
   // Set socket and robot status
@@ -251,12 +257,13 @@ int SessionController::Session()
     {
     //std::cerr << "MESSAGE: Setting up " << (*iter)->Name() << " phase." << std::endl;
     (*iter)->SetSocket(this->Socket);
-    (*iter)->SetRobotStatus(rs);
+    (*iter)->SetServerStatus(rs);
     }
 
   //------------------------------------------------------------
   // Set undefined phase as the current phase;
-  WorkphaseList::iterator currentPhase = PhaseList.begin();
+  //WorkphaseList::iterator currentPhase = PhaseList.begin();
+  this->CurrentPhase = PhaseList[0];
   
   int connect = 1;
 
@@ -264,11 +271,12 @@ int SessionController::Session()
   // loop
   while (connect)
     {
-    if ((*currentPhase)->Process())
+    if (this->CurrentPhase && this->CurrentPhase->Process())
       {
+      std::cerr << "MESSAGE: Phase change requested." << std::endl;
       // If Process() returns 1, phase change has been requested.
-      std::string requestedWorkphase = (*currentPhase)->GetNextWorkPhase();
-      std::string queryID = (*currentPhase)->GetQueryID();
+      std::string requestedWorkphase = this->CurrentPhase->GetNextWorkPhase();
+      std::string queryID = this->CurrentPhase->GetQueryID();
       
       // Find the requested workphase
       std::vector<  ServerPhaseBase* >::iterator iter;
@@ -277,8 +285,8 @@ int SessionController::Session()
         if (strcmp((*iter)->Name(), requestedWorkphase.c_str()) == 0)
           {
           // Change the current phase
-          currentPhase = iter;
-          (*currentPhase)->Enter(queryID.c_str()); // Initialization process
+          this->CurrentPhase = *iter;
+          this->CurrentPhase->Enter(queryID.c_str()); // Initialization process
           }
         }
       }

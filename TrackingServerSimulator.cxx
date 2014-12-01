@@ -37,21 +37,6 @@
 #include "ServerStatus.h"
 #include "SessionController.h"
 
-typedef std::vector< ServerPhaseBase* > WorkphaseList;
-
-enum {
-  SESSION_ACTIVE,
-  SESSION_INACTIVE
-};
-
-static int TimerInterval;
-static int SessionStatus; // SESSION_*
-static WorkphaseList PhaseList;
-static ServerPhaseBase* CurrentWorkphase; // Current workphase
-
-
-static void MonitorThread(void * ptr);
-int Session(igtl::Socket * socket, WorkphaseList& PhaseList);
 
 int main(int argc, char* argv[])
 {
