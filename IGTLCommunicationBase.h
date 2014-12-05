@@ -42,12 +42,27 @@ public:
   virtual int PushMessage(igtl::MessageBase* message);
   
   int  ReceiveMessageHeader(igtl::MessageHeader* headerMsg, int timeout);
+
   int  SkipMesage(igtl::MessageHeader* headerMsg);
-  void GetRandomTestMatrix(igtl::Matrix4x4& matrix);
+
+
+  // Send STRING message
   int  SendStringMessage(const char* name, const char* string);
+
+  // Send STATUS message
   int  SendStatusMessage(const char* name, int Code, int SubCode,
                          const char * errorName=NULL, const char* statusString=NULL);
+  // Send TRANSFORM message
   int  SendTransformMessage(const char* name, igtl::Matrix4x4& matrix);
+
+  // Receive STATUS message
+  int  ReceiveStatus(igtl::MessageHeader* header, int& code, int& subcode,
+                     std::string& name, std::string& status);
+  // Receive STRING message
+  int  ReceiveString(igtl::MessageHeader* header, std::string& string);
+
+  // Receive TRANSFORM message
+  int  ReceiveTransform(igtl::MessageHeader* header, igtl::Matrix4x4& matrix);
 
   /// Check if the received messsage is STRING message, and if the message has
   /// the specfied name and content. If suffix=1 is specified, the function
@@ -63,12 +78,13 @@ public:
                                        const char* name, igtl::Matrix4x4& matrix,
                                        double err = 1.0e-10, int suffix=0);
 
-  int  ReceiveTransform(igtl::MessageHeader* header, igtl::Matrix4x4& matrix);
-  int  ReceiveString(igtl::MessageHeader* header, std::string& string);
-  int  ReceiveStatus(igtl::MessageHeader* header, int& code, int& subcode,
-                     std::string& name, std::string& status);
+  // Random matrix generator for testing
+  void GetRandomTestMatrix(igtl::Matrix4x4& matrix);
 
+  // Print matrix for debuging
   void PrintMatrix(std::string prefix, igtl::Matrix4x4& matrix);
+
+  // Validate matrix (check if colums are normal and orthogonal)
   int  ValidateMatrix(igtl::Matrix4x4& matrix);
 
   // Compare two matrices. If there is any corresponding elements with error larger than 'tol', return 0.

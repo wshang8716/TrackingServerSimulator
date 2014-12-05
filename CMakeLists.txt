@@ -19,6 +19,18 @@ set(TRACKING_SERVER_SOURCE
   SessionController.cxx
 )
 
+
+set(TEST_CLIENT_SOURCE
+  IGTLCommunicationBase.cxx
+  TestClientProtocolBase.cxx
+  TestClientProtocolNormal.cxx
+  TestClientSimulator.cxx
+)
+
+
 ADD_EXECUTABLE(TrackingServerSimulator  ${TRACKING_SERVER_SOURCE})
 TARGET_LINK_LIBRARIES(TrackingServerSimulator OpenIGTLink)
+
+ADD_EXECUTABLE(TestClientSimulator  ${TEST_CLIENT_SOURCE})
+TARGET_LINK_LIBRARIES(TestClientSimulator OpenIGTLink)
 

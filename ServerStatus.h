@@ -39,8 +39,10 @@ public:
   int GetTargetMatrix(igtl::Matrix4x4& matrix);
 
 protected:
+
   int FlagCalibration;
   int FlagTarget;
+
   igtl::Matrix4x4 CalibrationMatrix;
   igtl::Matrix4x4 TargetMatrix;
 };
