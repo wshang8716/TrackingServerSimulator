@@ -84,14 +84,17 @@ Following messages are used in the scheme:
 |Send the current state  |>> STATUS("STATE", OK, "INIT")      |                    |
 |Initialize the variables|                                    |                    |
 
+
 The server initialized the variables successfully:
+
 |Server                  |Message                             |Client              |
 |------------------------|------------------------------------|--------------------|
 |Send the result         |>> STATUS("INIT", OK)               |                    |
 |Enter StandBy           |                                    |                    |
 
+
 The server could not initialize the variables:
-The server initialized the variables successfully:
+
 |Server                  |Message                             |Client              |
 |------------------------|------------------------------------|--------------------|
 |Send the result         |>> STATUS("INIT", DNR)              |                    |
