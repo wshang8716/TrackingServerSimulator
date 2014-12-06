@@ -37,6 +37,8 @@ ServerInitializationPhase::~ServerInitializationPhase()
 int ServerInitializationPhase::Initialize()
 {
 
+  this->SendStatusMessage("STATE", igtl::StatusMessage::STATUS_OK, 0, this->Name());
+
   // Send Status after waiting for 2 seconds (mimicking initialization process)
   igtl::Sleep(2000); // wait for 2000 msec
 

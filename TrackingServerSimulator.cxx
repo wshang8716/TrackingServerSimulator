@@ -26,7 +26,9 @@
 
 #include "ServerPhaseBase.h"
 #include "ServerUndefinedPhase.h"
+#include "ServerStartUp.h"
 #include "ServerInitializationPhase.h"
+
 //#include "ServerSimulatorPlanningPhase.h"
 //#include "ServerSimulatorCalibrationPhase.h"
 //#include "ServerSimulatorTargetingPhase.h"

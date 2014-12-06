@@ -13,6 +13,7 @@ set(TRACKING_SERVER_SOURCE
   IGTLCommunicationBase.cxx
   ServerPhaseBase.cxx
   ServerUndefinedPhase.cxx
+  ServerStartUpPhase.cxx
   ServerInitializationPhase.cxx
   TrackingServerSimulator.cxx
   ServerStatus.cxx

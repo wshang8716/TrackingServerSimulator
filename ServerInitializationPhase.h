@@ -26,7 +26,7 @@ public:
   ServerInitializationPhase();
   ~ServerInitializationPhase();
 
-  virtual const char* Name() { return "Initialization"; };
+  virtual const char* Name() { return "INIT"; };
 
   virtual int Initialize();
   virtual int MessageHandler(igtl::MessageHeader* headerMsg);

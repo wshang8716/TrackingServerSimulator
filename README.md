@@ -1,6 +1,11 @@
 OpenIGTLink Demo: Bi-directional Communication
 ==============================================
 
+December 6, 2014
+
+By Junichi Tokuda (tokuda@bwh.harvard.edu)
+
+
 Overview
 --------
 This is an example program demonstrating how to write a "real-world"
@@ -26,32 +31,74 @@ In this simple example, three states for the server are defined:
 3. *Tracking:* The server repeats sending dummy tracking data to the client until
   it receives a stop command.
 
+
 Message Exchange Scheme
 -----------------------
 
-### StartUp
+### Message Notation
+Following messages are used in the scheme:
+
+- STRING(Name, Content)
+  - Name: Message name
+  - Content: ASCII string
+  - See [OpenIGTLink Specification Page](http://openigtlink.org/protocols/v2_string.html)
+- STATUS(Name, Code, SubCode, ErrorName, Message)
+  - Name: Message name
+  - Code: Status code
+  - SubCode: Status sub-code
+  - ErrorName: Name of error (<20 characters)
+  - Message: String
+  - See [OpenIGTLink Specification Page](http://openigtlink.org/protocols/v2_status.html)
+- TDATA
+  - TDATA(Name, [[TransName_0, Transform_0], …[TransName_N, Transform_N])
+  - Name: Message name
+  - TransName_i: Name of transform i
+  - Transform_i: Transform i
+  - See [OpenIGTLink Specification Page](http://openigtlink.org/protocols/v2_trackingdata.html)
+
+
+### Common (All states)
+
+####Request for the current status
+|Server                  |Message                             |Client              |
+|------------------------|------------------------------------|--------------------|
+|                        |<< GET_STATUS("STATE")              |Send request        |
+|Send the current state  |>> STATUS("STATE", OK, "INIT")      |                    |
+
+
+### StartUp (STARTUP)
 
 |Server              |Message                           |Client                |
 |--------------------|----------------------------------|----------------------|
 |Start up the program|                                  |                      |
 |                    |                                  |Start up the program  |
-|                    |<< STRING("CMD", "INITIALIZATION")|Trigger Initialization|
+|                    |<< STRING("CMD", "INIT")          |Trigger Initialization|
 |Enter Initialization|                                  |                      |
 
 
 
-### Initialization
+### Initialization (INIT)
 
 |Server                  |Message                             |Client              |
 |------------------------|------------------------------------|--------------------|
-|Send the current state  |>> STATUS("STATE", "INITIALIZATION")|                    |
+|Send the current state  |>> STATUS("STATE", OK, "INIT")      |                    |
 |Initialize the variables|                                    |                    |
-|Send the result         |>> STATUS("INITIALIZATION", OK)     |                    |
+
+The server initialized the variables successfully:
+|Server                  |Message                             |Client              |
+|------------------------|------------------------------------|--------------------|
+|Send the result         |>> STATUS("INIT", OK)               |                    |
 |Enter StandBy           |                                    |                    |
+
+The server could not initialize the variables:
+The server initialized the variables successfully:
+|Server                  |Message                             |Client              |
+|------------------------|------------------------------------|--------------------|
+|Send the result         |>> STATUS("INIT", DNR)              |                    |
+
 
 
 ### StandBy
-
 #### Enter StandBy state
 
 |Server                  |Message                       |Client                |
@@ -61,7 +108,6 @@ Message Exchange Scheme
 
 
 #### Start tracking
-
 |Server                  |Message                       |Client                |
 |------------------------|------------------------------|----------------------|
 |                        |                              |"Start button" pressed|
@@ -73,14 +119,12 @@ Message Exchange Scheme
 |Server               |Message                          |Client                |
 |---------------------|---------------------------------|----------------------|
 |                     |                                 |"Reset button" pressed|
-|                     |<< STRING("CMD", "INITALIZATION")|Send a request        |
+|                     |<< STRING("CMD", "INIT")         |Send a request        |
 |Enter Initialization |                                 |                      |
 
 
 ### Tracking
-
 #### Enter Tracking state
-
 |Server                  |Message                             |Client               |
 |------------------------|------------------------------------|---------------------|
 |Send the current state  |>> STATUS("STATE", "TRACKING")      |                     |
@@ -91,7 +135,6 @@ Message Exchange Scheme
 |  ...                   |   ...                              |                     |
 |  ...                   |   ...                              |                     |
 
-
 #### Stop tracking
 |Server                  |Message                             |Client               |
 |------------------------|------------------------------------|---------------------|
@@ -100,10 +143,14 @@ Message Exchange Scheme
 |Enter StandBy           |                                    |                     |
 
 #### Reset
-
 |Server               |Message                          |Client                |
 |---------------------|---------------------------------|----------------------|
 |                     |                                 |"Reset button" pressed|
-|                     |<< STRING("CMD", "INITALIZATION")|Send a request        |
+|                     |<< STRING("CMD", "INIT")         |Send a request        |
 |Enter Initialization |                                 |                      |
+
+
+
+Implementation
+--------------
 
