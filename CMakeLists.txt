@@ -9,16 +9,18 @@ find_package(OpenIGTLink REQUIRED)
 
 include(${OpenIGTLink_USE_FILE})
 
+
 set(TRACKING_SERVER_SOURCE
   IGTLCommunicationBase.cxx
+  ServerStatus.cxx
   ServerPhaseBase.cxx
   ServerUndefinedPhase.cxx
+  ServerInitializationPhase.cxx
   ServerStartUpPhase.cxx
   ServerStandByPhase.cxx
-  ServerInitializationPhase.cxx
-  TrackingServerSimulator.cxx
-  ServerStatus.cxx
+  ServerTrackingPhase.cxx
   SessionController.cxx
+  TrackingServerSimulator.cxx
 )
 
 

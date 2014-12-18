@@ -73,6 +73,10 @@ public:
   // ReceiveStartTracking saves the name of the coordinate system in 'cood' and
   // the resolution (millisecond) in 'res'
   int  ReceiveStartTracking(igtl::MessageHeader* header, std::string& coord, int& res);
+
+  // Receive STP_TDATA message
+  int  ReceiveStopTracking(igtl::MessageHeader* header);
+
   
   /// Check if the received messsage is STRING message, and if the message has
   /// the specfied name and content. If suffix=1 is specified, the function
@@ -90,6 +94,8 @@ public:
 
   // Random matrix generator for testing
   void GetRandomTestMatrix(igtl::Matrix4x4& matrix);
+  void GetRandomTestMatrix(igtl::Matrix4x4& matrix, float phi, float theta);
+
 
   // Print matrix for debuging
   void PrintMatrix(std::string prefix, igtl::Matrix4x4& matrix);

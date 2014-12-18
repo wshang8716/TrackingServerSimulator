@@ -444,13 +444,28 @@ void IGTLCommunicationBase::GetRandomTestMatrix(igtl::Matrix4x4& matrix)
 
   // random position
   static float phi = 0.0;
+  static float theta = 0.0;
+
+  this->GetRandomTestMatrix(matrix, phi, theta);
+
+  phi = phi + 0.2;
+  theta = theta + 0.1;
+
+}
+
+
+void IGTLCommunicationBase::GetRandomTestMatrix(igtl::Matrix4x4& matrix, float phi, float theta)
+{
+  float position[3];
+  float orientation[4];
+
+  // random position
   position[0] = 50.0 * cos(phi);
   position[1] = 50.0 * sin(phi);
   position[2] = 50.0 * cos(phi);
   phi = phi + 0.2;
 
   // random orientation
-  static float theta = 0.0;
   orientation[0]=0.0;
   orientation[1]=0.6666666666*cos(theta);
   orientation[2]=0.577350269189626;
@@ -464,9 +479,8 @@ void IGTLCommunicationBase::GetRandomTestMatrix(igtl::Matrix4x4& matrix)
   matrix[1][3] = position[1];
   matrix[2][3] = position[2];
   
-  //PrintMatrix(matrix);
+  //igtl::PrintMatrix(matrix);
 }
-
 
 
 int IGTLCommunicationBase::ReceiveTransform(igtl::MessageHeader* header, igtl::Matrix4x4& matrix)
@@ -591,6 +605,34 @@ int IGTLCommunicationBase::ReceiveStartTracking(igtl::MessageHeader* header, std
     {
     coord = sttMsg->GetCoordinateName();
     res = sttMsg->GetResolution();
+    return 1;
+    }
+
+  return 0;
+  
+}
+
+
+int IGTLCommunicationBase::ReceiveStopTracking(igtl::MessageHeader* header)
+{
+
+  std::cerr << "MESSAGE: Receiving STT_TDATA type." << std::endl;
+
+  // Create a message buffer to receive transform data
+  igtl::StopTrackingDataMessage::Pointer sttMsg;
+  sttMsg = igtl::StopTrackingDataMessage::New();
+  sttMsg->SetMessageHeader(header);
+  sttMsg->AllocatePack();
+
+  // Receive transform data from the this->Socket
+  this->Socket->Receive(sttMsg->GetPackBodyPointer(), sttMsg->GetPackBodySize());
+
+  // Deserialize the transform data
+  // If you want to skip CRC check, call Unpack() without argument.
+  int c = sttMsg->Unpack(1);
+
+  if (c & igtl::MessageHeader::UNPACK_BODY) // if CRC check is OK
+    {
     return 1;
     }
 
