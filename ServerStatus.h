@@ -32,13 +32,23 @@ public:
 
   // Return 0 if a calibration matrix has not been set.
   int GetCalibrationMatrix(igtl::Matrix4x4& matrix);
-
   void SetTargetMatrix(igtl::Matrix4x4& matrix);
 
   // Return 0 if a target matrix has not been set.
   int GetTargetMatrix(igtl::Matrix4x4& matrix);
 
+  // Temporal resolution for tracking
+  void SetTrackingResolution(int res) { this->TrackingResolution = res; }
+  int GetTrackingResolution() { return this->TrackingResolution; }
+  
+  // Name of the tracking coordinate system
+  void SetTrackingCoordinate(const char* str) { this->TrackingCoordinate = str; }
+  std::string GetTrackingCoordinate() { return this->TrackingCoordinate; }
+
 protected:
+
+  int TrackingResolution;
+  std::string TrackingCoordinate;
 
   int FlagCalibration;
   int FlagTarget;

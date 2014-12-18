@@ -34,6 +34,7 @@ public:
   ~SessionController();
 
 public:
+
   // Register a new phase and return the number of registered phases.
   int  RegisterPhase(ServerPhaseBase*);
 
@@ -55,10 +56,12 @@ public:
   void PrintAvailableDefectTypes();
 
   // Set Port Number;
-  void SetPortNumber(int port) { this->PortNumber = port; };
+  void SetPortNumber(int port) { this->PortNumber = port; }
 
   // Set an interval for the timer
   void SetTimerInterval(int intv) { this->TimerInterval = intv; }
+
+  void SetServerStatus(ServerStatus* status) { this->SStatus = status; }
 
   int  Run();
 
@@ -82,6 +85,8 @@ protected:
   ServerPhaseBase* CurrentPhase; // Current workphase
 
   bool ThreadAlive;
+
+  ServerStatus* SStatus;
 
 };
 

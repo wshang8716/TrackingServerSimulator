@@ -26,7 +26,7 @@
 ServerPhaseBase::ServerPhaseBase() : IGTLCommunicationBase()
 {
   this->NextWorkphase.clear();
-  this->RStatus = NULL;
+  this->SStatus = NULL;
 }
 
 

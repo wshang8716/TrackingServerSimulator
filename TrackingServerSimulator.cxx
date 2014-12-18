@@ -26,16 +26,10 @@
 
 #include "ServerPhaseBase.h"
 #include "ServerUndefinedPhase.h"
-#include "ServerStartUpPhase.h"
 #include "ServerInitializationPhase.h"
+#include "ServerStartUpPhase.h"
+#include "ServerStandByPhase.h"
 
-//#include "ServerSimulatorPlanningPhase.h"
-//#include "ServerSimulatorCalibrationPhase.h"
-//#include "ServerSimulatorTargetingPhase.h"
-//#include "ServerSimulatorMoveToTargetPhase.h"
-//#include "ServerSimulatorManualPhase.h"
-//#include "ServerSimulatorStopPhase.h"
-//#include "ServerSimulatorEmergencyPhase.h"
 #include "ServerStatus.h"
 #include "SessionController.h"
 
@@ -45,17 +39,16 @@ int main(int argc, char* argv[])
 
   SessionController * controller = new SessionController;
 
+  // Must create ServerStatus object before registering phases. 
+  ServerStatus * sstatus = new ServerStatus;
+  controller->SetServerStatus(sstatus);
+
   //------------------------------------------------------------
   // Setup workphases
   controller->RegisterPhase(new ServerUndefinedPhase);
   controller->RegisterPhase(new ServerInitializationPhase);
-  //controller->RegisterPhase(new ServerPlanningPhase);
-  //controller->RegisterPhase(new ServerCalibrationPhase);
-  //controller->RegisterPhase(new ServerTargetingPhase);
-  //controller->RegisterPhase(new ServerMoveToTargetPhase);
-  //controller->RegisterPhase(new ServerManualPhase);
-  //controller->RegisterPhase(new ServerStopPhase);
-  //controller->RegisterPhase(new ServerEmergencyPhase);
+  controller->RegisterPhase(new ServerStartUpPhase);
+  controller->RegisterPhase(new ServerStandByPhase);
 
   //------------------------------------------------------------
   // Parse Arguments

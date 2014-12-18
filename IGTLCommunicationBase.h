@@ -69,6 +69,11 @@ public:
   // Receive TRANSFORM message
   int  ReceiveTransform(igtl::MessageHeader* header, igtl::Matrix4x4& matrix);
 
+  // Receive STT_TDATA message
+  // ReceiveStartTracking saves the name of the coordinate system in 'cood' and
+  // the resolution (millisecond) in 'res'
+  int  ReceiveStartTracking(igtl::MessageHeader* header, std::string& coord, int& res);
+  
   /// Check if the received messsage is STRING message, and if the message has
   /// the specfied name and content. If suffix=1 is specified, the function
   /// only checks if the message name begins with the string specified by 'name'.

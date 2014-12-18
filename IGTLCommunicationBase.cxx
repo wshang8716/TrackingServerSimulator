@@ -20,6 +20,7 @@
 #include "igtlClientSocket.h"
 #include "igtlStatusMessage.h"
 #include "igtlTransformMessage.h"
+#include "igtlTrackingDataMessage.h"
 #include <cmath>
 
 IGTLCommunicationBase::IGTLCommunicationBase()
@@ -313,6 +314,9 @@ int IGTLCommunicationBase::CheckAndReceiveTransformMessage(igtl::MessageHeader* 
 }
 
 
+
+
+
 int IGTLCommunicationBase::CheckMessageTypeAndName(igtl::MessageHeader* headerMsg,
                                                    const char* type, const char* name)
 {
@@ -517,14 +521,15 @@ int IGTLCommunicationBase::ReceiveString(igtl::MessageHeader* header, std::strin
     std::cerr << "Encoding: " << stringMsg->GetEncoding() << "; "
               << "String: " << stringMsg->GetString() << std::endl << std::endl;
     string = stringMsg->GetString();
+    return 1;
     }
 
-  return 1;
+  return 0;
 }
 
 
 int IGTLCommunicationBase::ReceiveStatus(igtl::MessageHeader* header, int& code, int& subcode,
-                  std::string& name, std::string& status)
+                                         std::string& name, std::string& status)
 {
 
   std::cerr << "MESSAGE: Receiving STATUS data type." << std::endl;
@@ -555,11 +560,44 @@ int IGTLCommunicationBase::ReceiveStatus(igtl::MessageHeader* header, int& code,
     subcode = statusMsg->GetSubCode();
     name = statusMsg->GetErrorName();
     status = statusMsg->GetStatusString();
+
+    return 1;
     }
 
   return 0;
 
 }
+
+
+int IGTLCommunicationBase::ReceiveStartTracking(igtl::MessageHeader* header, std::string& coord, int& res)
+{
+
+  std::cerr << "MESSAGE: Receiving STT_TDATA type." << std::endl;
+
+  // Create a message buffer to receive transform data
+  igtl::StartTrackingDataMessage::Pointer sttMsg;
+  sttMsg = igtl::StartTrackingDataMessage::New();
+  sttMsg->SetMessageHeader(header);
+  sttMsg->AllocatePack();
+
+  // Receive transform data from the this->Socket
+  this->Socket->Receive(sttMsg->GetPackBodyPointer(), sttMsg->GetPackBodySize());
+
+  // Deserialize the transform data
+  // If you want to skip CRC check, call Unpack() without argument.
+  int c = sttMsg->Unpack(1);
+
+  if (c & igtl::MessageHeader::UNPACK_BODY) // if CRC check is OK
+    {
+    coord = sttMsg->GetCoordinateName();
+    res = sttMsg->GetResolution();
+    return 1;
+    }
+
+  return 0;
+  
+}
+
 
 void IGTLCommunicationBase::PrintMatrix(std::string prefix, igtl::Matrix4x4& matrix)
 {

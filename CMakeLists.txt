@@ -14,6 +14,7 @@ set(TRACKING_SERVER_SOURCE
   ServerPhaseBase.cxx
   ServerUndefinedPhase.cxx
   ServerStartUpPhase.cxx
+  ServerStandByPhase.cxx
   ServerInitializationPhase.cxx
   TrackingServerSimulator.cxx
   ServerStatus.cxx

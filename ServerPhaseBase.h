@@ -88,7 +88,7 @@ public:
   std::list< std::string > GetDefectTypeList();
   std::string GetDefectTypeDescription(const char * type);
 
-  void SetServerStatus(ServerStatus* rs) { this->RStatus = rs; };
+  void SetServerStatus(ServerStatus* rs) { this->SStatus = rs; };
 
 protected:
 
@@ -109,7 +109,7 @@ protected:
   std::map< std::string, int > DefectStatus;
   std::map< std::string, std::string > DefectDescription;
 
-  ServerStatus* RStatus;
+  ServerStatus* SStatus;
 
 };
 

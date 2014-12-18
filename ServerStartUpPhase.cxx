@@ -36,36 +36,22 @@ ServerStartUpPhase::~ServerStartUpPhase()
 
 int ServerStartUpPhase::Initialize()
 {
-
-  this->SendStatusMessage("STATE", igtl::StatusMessage::STATUS_OK, 0, this->Name());
-
-  // Send Status after waiting for 2 seconds (mimicking initialization process)
-  igtl::Sleep(2000); // wait for 2000 msec
-
-  if (this->GetDefectStatus("DNR"))
-    {
-    // Device-not-ready defect is active
-    this->SendStatusMessage(this->Name(), igtl::StatusMessage::STATUS_NOT_READY, 0);
-    }
-  else
-    {
-    // Normal
-    this->SendStatusMessage(this->Name(), 1, 0);
-    }
-
-  return 1;
+  return PHASE_CHANGE_NOT_REQUIRED;
 }
 
 
 int ServerStartUpPhase::MessageHandler(igtl::MessageHeader* headerMsg)
 {
 
-  if (ServerPhaseBase::MessageHandler(headerMsg))
+  int r = ServerPhaseBase::MessageHandler(headerMsg);
+  if (r != NOT_PROCESSED)
     {
-    return 1;
+    return r;
     }
 
-  return 0;
+  // Implement message handling specific to this class here
+  return NOT_PROCESSED;
+
 }
 
 

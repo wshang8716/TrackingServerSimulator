@@ -67,7 +67,8 @@ int ServerInitializationPhase::MessageHandler(igtl::MessageHeader* headerMsg)
     return r;
     }
 
-  return 0;
+  // Implement message handling specific to this class here
+  return NOT_PROCESSED;
 }
 
 

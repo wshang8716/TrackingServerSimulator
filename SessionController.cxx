@@ -27,6 +27,7 @@ SessionController::SessionController()
   this->CurrentPhase = NULL;
   this->ThreadAlive = 0;
   this->PortNumber = 18944;
+  this->SStatus = NULL;
 
 }
 
@@ -42,11 +43,20 @@ SessionController::~SessionController()
 int SessionController::RegisterPhase(ServerPhaseBase* phase)
 {
 
-  if (phase)
+  if (!this->SStatus)
     {
-    this->PhaseList.push_back(phase);
+    std::cerr << "ERROR: ServerStatus object is not available." << std::endl;
+    return this->PhaseList.size();
     }
 
+  if (!phase)
+    {
+    std::cerr << "ERROR: Phase object is empty." << std::endl;
+    return this->PhaseList.size();
+    }
+  
+  this->PhaseList.push_back(phase);
+  phase->SetServerStatus(this->SStatus);
   return this->PhaseList.size();
 
 }
