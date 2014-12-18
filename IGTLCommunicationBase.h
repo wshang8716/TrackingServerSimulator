@@ -43,6 +43,11 @@ public:
   
   int  ReceiveMessageHeader(igtl::MessageHeader* headerMsg, int timeout);
 
+  // Check if the type and the name of the message match those specified.
+  // Return 1 if they match.
+  int  CheckMessageTypeAndName(igtl::MessageHeader* headerMsg,
+                               const char* type, const char* name);
+
   int  SkipMesage(igtl::MessageHeader* headerMsg);
 
 

@@ -266,18 +266,31 @@ int SessionController::Session()
   this->CurrentPhase = PhaseList[0];
   
   int connect = 1;
-
+  int fEnter = 1;
+  
   //------------------------------------------------------------
   // loop
-  while (connect)
+  while (connect && this->CurrentPhase)
     {
-    if (this->CurrentPhase && this->CurrentPhase->Process())
+    int fPhaseChange = 0;
+
+    if (fEnter)
       {
+      fPhaseChange = this->CurrentPhase->Enter();
+      fEnter = 0;
+      }
+
+    if (!fPhaseChange)
+      {
+      fPhaseChange = this->CurrentPhase->Process();
+      }
+
+    if (fPhaseChange)
+      {
+      // If Enter() or Process() returns 1, phase change has been requested.
       std::cerr << "MESSAGE: Phase change requested." << std::endl;
-      // If Process() returns 1, phase change has been requested.
       std::string requestedWorkphase = this->CurrentPhase->GetNextWorkPhase();
-      std::string queryID = this->CurrentPhase->GetQueryID();
-      
+
       // Find the requested workphase
       std::vector<  ServerPhaseBase* >::iterator iter;
       for (iter = PhaseList.begin(); iter != PhaseList.end(); iter ++)
@@ -286,8 +299,14 @@ int SessionController::Session()
           {
           // Change the current phase
           this->CurrentPhase = *iter;
-          this->CurrentPhase->Enter(queryID.c_str()); // Initialization process
+          fEnter = 1;
+          break;
           }
+        }
+      if (!fEnter)
+        {
+        // The next phase could not be found.
+        // TODO: Error handling
         }
       }
     }

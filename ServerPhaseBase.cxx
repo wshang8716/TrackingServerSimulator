@@ -35,7 +35,8 @@ ServerPhaseBase::~ServerPhaseBase()
 }
 
 
-int ServerPhaseBase::Enter(const char* queryID)
+//int ServerPhaseBase::Enter(const char* queryID)
+int ServerPhaseBase::Enter()
 {
   // Display the new phase
   std::cerr << "Enter Phase: " << this->Name() << std::endl;
@@ -64,7 +65,16 @@ int ServerPhaseBase::Process()
 
 int ServerPhaseBase::MessageHandler(igtl::MessageHeader* headerMsg)
 {
-  return 0;
+
+  if (this->CheckMessageTypeAndName(headerMsg, "GET_STATUS", "STATE"))
+    {
+    this->SendStatusMessage("STATE", igtl::StatusMessage::STATUS_OK, 0, this->Name());
+    return PHASE_CHANGE_NOT_REQUIRED;
+    }
+  else
+    {
+    return NOT_PROCESSED;
+    }
 }
 
 

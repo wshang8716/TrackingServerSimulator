@@ -31,6 +31,23 @@ In this simple example, three states for the server are defined:
 3. *Tracking:* The server repeats sending dummy tracking data to the client until
   it receives a stop command.
 
+> 
+>     +----------+
+>     | Start Up |
+>     +----------+
+>          |
+>          v
+>   +--------------+
+>   |Initialization|<-------+
+>   +--------------+        |
+>         |  ^              |
+>         v  |              |
+>     +----------+     +----------+
+>     | Stand by |<--->| Tracking |
+>     +----------+     +----------+
+>
+
+
 
 Message Exchange Scheme
 -----------------------
@@ -63,7 +80,9 @@ Following messages are used in the scheme:
 |Server                  |Message                             |Client              |
 |------------------------|------------------------------------|--------------------|
 |                        |<< GET_STATUS("STATE")              |Send request        |
-|Send the current state  |>> STATUS("STATE", OK, "INIT")      |                    |
+|Send the current state  |>> STATUS("STATE", OK, 0, State)    |                    |
+
+'State' is a current status (i.e. STARTUP).
 
 
 ### StartUp (STARTUP)
@@ -81,7 +100,7 @@ Following messages are used in the scheme:
 
 |Server                  |Message                             |Client              |
 |------------------------|------------------------------------|--------------------|
-|Send the current state  |>> STATUS("STATE", OK, "INIT")      |                    |
+d|Send the current state  |>> STATUS("STATE", OK, 0, "INIT")   |                    |
 |Initialize the variables|                                    |                    |
 
 
@@ -104,10 +123,10 @@ The server could not initialize the variables:
 ### StandBy
 #### Enter StandBy state
 
-|Server                  |Message                       |Client                |
-|------------------------|------------------------------|----------------------|
-|Send the current state  |>> STATUS("STATE", "STANDBY") |                      |
-|Wait                    |                              |                      |
+|Server                  |Message                             |Client                |
+|------------------------|------------------------------------|----------------------|
+|Send the current state  |>> STATUS("STATE", OK, 0, "STANDBY")|                      |
+|Wait                    |                                    |                      |
 
 
 #### Start tracking
@@ -128,15 +147,15 @@ The server could not initialize the variables:
 
 ### Tracking
 #### Enter Tracking state
-|Server                  |Message                             |Client               |
-|------------------------|------------------------------------|---------------------|
-|Send the current state  |>> STATUS("STATE", "TRACKING")      |                     |
-|Generate random data    |                                    |                     |
-|Send randam data        |>> TDATA("TRACKING", pos)           |                     |
-|Generate random data    |                                    |                     |
-|Send randam data        |>> TDATA("TRACKING", pos)           |                     |
-|  ...                   |   ...                              |                     |
-|  ...                   |   ...                              |                     |
+|Server                  |Message                              |Client               |
+|------------------------|-------------------------------------|---------------------|
+|Send the current state  |>> STATUS("STATE", OK, 0, "TRACKING")|                     |
+|Generate random data    |                                     |                     |
+|Send randam data        |>> TDATA("TRACKING", pos)            |                     |
+|Generate random data    |                                     |                     |
+|Send randam data        |>> TDATA("TRACKING", pos)            |                     |
+|  ...                   |   ...                               |                     |
+|  ...                   |   ...                               |                     |
 
 #### Stop tracking
 |Server                  |Message                             |Client               |
@@ -151,6 +170,7 @@ The server could not initialize the variables:
 |                     |                                 |"Reset button" pressed|
 |                     |<< STRING("CMD", "INIT")         |Send a request        |
 |Enter Initialization |                                 |                      |
+
 
 
 

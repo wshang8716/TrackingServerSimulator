@@ -313,6 +313,22 @@ int IGTLCommunicationBase::CheckAndReceiveTransformMessage(igtl::MessageHeader* 
 }
 
 
+int IGTLCommunicationBase::CheckMessageTypeAndName(igtl::MessageHeader* headerMsg,
+                                                   const char* type, const char* name)
+{
+  if (strcmp(headerMsg->GetDeviceType(), type) == 0 &&
+      strcmp(headerMsg->GetDeviceName(), name) == 0)
+    {
+    return 1;
+    }
+  else
+    {
+    return 0;
+    }
+    
+}
+
+
 int IGTLCommunicationBase::SkipMesage(igtl::MessageHeader* headerMsg)
 {
   this->Socket->Skip(headerMsg->GetBodySizeToRead(), 0);

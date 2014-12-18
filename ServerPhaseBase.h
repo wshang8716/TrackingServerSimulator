@@ -28,6 +28,14 @@ class ServerPhaseBase : public IGTLCommunicationBase
 {
 public:
 
+  // Return values for MessageHandler()
+  enum {
+    NOT_PROCESSED = 0,
+    PHASE_CHANGE_NOT_REQUIRED,
+    PHASE_CHANGE_REQUIRED
+  };
+
+public:
   ServerPhaseBase();
   virtual ~ServerPhaseBase();
 
@@ -36,28 +44,40 @@ public:
   // Enter() will be called when the workphase is switched from another
   // workphase. Enter() calls Initialize() which implements actual
   // initialization process for this workphase.
-  virtual int Enter(const char* queryID);
-
-  // Initialization process. This must be implemented in child classes.
-  virtual int Initialize() = 0;
+  // Returns 1 if there is any workphase change request. Otherwise returns 0.
+  //virtual int Enter(const char* queryID);
+  virtual int Enter();
 
   // Process() will be called by the main session loop.
   // Process() receives a message and calls MessageHander() to perform workphase-specific
-  // message handling. Returns 1 if there is any workphase change request. Otherwise returns 0.
+  // message handling. 
+  // Returns 1 if there is any workphase change request. Otherwise returns 0.
   virtual int Process();
+
+  // Initialization process. This must be implemented in child classes.
+  // MessageHandler() returns one of the following values:
+  //   NOT_PROCESSED:             The message was not processed in MessageHandler().
+  //   PHASE_CHANGE_NOT_REQUIRED: The message was processed, but no phase change is
+  //                              required.
+  //   PHASE_CHANGE_REQUIRED:     The message was processed, and a phaes change is
+  //                              required.
+  // Those returned values allow calling MessageHandler() hierarchically.
+  virtual int Initialize() = 0;
 
   // MessageHandler() defines workphase-specific message handling.
   // The function must be implemented in the child classes.
-  // MessageHandler() needs to check if any work phase change is requred. If it determins
-  // that the work phase needs to be changed, it returns 1; othewise it returns 0.
+  // MessageHanlder returns one of the values listed above (see comment for
+  // Initialize()).
   virtual int MessageHandler(igtl::MessageHeader* headerMsg);
 
-  // TimerHandler() defines a process that needs to be called periodically during the TCP/IP session.
+  // TimerHandler() defines a process that needs to be called periodically
+  // during the TCP/IP session.
   // The function must be defined in the child classes.
   virtual int TimerHandler(long timestamp) = 0; 
 
+  void SetNextWorkPhase(const char* phase)  { this->NextWorkphase = phase; }
   std::string GetNextWorkPhase() { return this->NextWorkphase; };
-  std::string GetQueryID() { return this->QueryID; };
+  //std::string GetQueryID() { return this->QueryID; };
 
   // Enable/disable defects. Specify s=1 when enabled.
   int SetDefectStatus(const char * type, int s);
@@ -84,7 +104,7 @@ protected:
   int RegisterDefectType(const char* name, const char* desc);
 
   std::string NextWorkphase;
-  std::string QueryID;
+  //std::string QueryID;
 
   std::map< std::string, int > DefectStatus;
   std::map< std::string, std::string > DefectDescription;
