@@ -1,6 +1,6 @@
 /*=========================================================================
 
-  Program:  OpenIGTLink Communication Base
+  Program:  OpenIGTLink Socket Utility Class
   Language:  C++
 
   Copyright (c) Brigham and Women's Hospital. All rights reserved.
@@ -11,7 +11,7 @@
 
 =========================================================================*/
 
-#include "IGTLCommunicationBase.h"
+#include "OpenIGTLinkSockUtil.h"
 #include <string.h>
 #include <stdlib.h>
 
@@ -23,18 +23,18 @@
 #include "igtlTrackingDataMessage.h"
 #include <cmath>
 
-IGTLCommunicationBase::IGTLCommunicationBase()
+OpenIGTLinkSockUtil::OpenIGTLinkSockUtil()
 {
   this->Mutex = igtl::MutexLock::New();
 }
 
 
-IGTLCommunicationBase::~IGTLCommunicationBase()
+OpenIGTLinkSockUtil::~OpenIGTLinkSockUtil()
 {
 }
 
 
-int IGTLCommunicationBase::PushMessage(igtl::MessageBase* message)
+int OpenIGTLinkSockUtil::PushMessage(igtl::MessageBase* message)
 {
   int r;
 
@@ -52,13 +52,13 @@ int IGTLCommunicationBase::PushMessage(igtl::MessageBase* message)
 }
 
 
-void IGTLCommunicationBase::SetSocket(igtl::Socket* socket)
+void OpenIGTLinkSockUtil::SetSocket(igtl::Socket* socket)
 {
   this->Socket = socket;
 }
 
 
-int IGTLCommunicationBase::ReceiveMessageHeader(igtl::MessageHeader* headerMsg, int timeout)
+int OpenIGTLinkSockUtil::ReceiveMessageHeader(igtl::MessageHeader* headerMsg, int timeout)
 {
 
   this->Socket->SetTimeout(timeout);
@@ -91,7 +91,7 @@ int IGTLCommunicationBase::ReceiveMessageHeader(igtl::MessageHeader* headerMsg, 
 }
 
 
-int IGTLCommunicationBase::CheckAndReceiveStringMessage(igtl::MessageHeader* headerMsg,
+int OpenIGTLinkSockUtil::CheckAndReceiveStringMessage(igtl::MessageHeader* headerMsg,
                                            const char* name, const char* string, int suffix)
 {
 
@@ -156,7 +156,7 @@ int IGTLCommunicationBase::CheckAndReceiveStringMessage(igtl::MessageHeader* hea
 }
 
 
-int IGTLCommunicationBase::CheckAndReceiveStatusMessage(igtl::MessageHeader* headerMsg,
+int OpenIGTLinkSockUtil::CheckAndReceiveStatusMessage(igtl::MessageHeader* headerMsg,
                                            const char* name, int code, int suffix,
                                            const char* errorName)
 {
@@ -235,7 +235,7 @@ int IGTLCommunicationBase::CheckAndReceiveStatusMessage(igtl::MessageHeader* hea
 
 
 // if err < 0, not check the matrix
-int IGTLCommunicationBase::CheckAndReceiveTransformMessage(igtl::MessageHeader* headerMsg,
+int OpenIGTLinkSockUtil::CheckAndReceiveTransformMessage(igtl::MessageHeader* headerMsg,
                                               const char* name, igtl::Matrix4x4& matrix, double err, 
                                               int suffix)
 {
@@ -317,7 +317,7 @@ int IGTLCommunicationBase::CheckAndReceiveTransformMessage(igtl::MessageHeader* 
 
 
 
-int IGTLCommunicationBase::CheckMessageTypeAndName(igtl::MessageHeader* headerMsg,
+int OpenIGTLinkSockUtil::CheckMessageTypeAndName(igtl::MessageHeader* headerMsg,
                                                    const char* type, const char* name)
 {
   if (strcmp(headerMsg->GetDeviceType(), type) == 0 &&
@@ -333,7 +333,7 @@ int IGTLCommunicationBase::CheckMessageTypeAndName(igtl::MessageHeader* headerMs
 }
 
 
-int IGTLCommunicationBase::SkipMesage(igtl::MessageHeader* headerMsg)
+int OpenIGTLinkSockUtil::SkipMesage(igtl::MessageHeader* headerMsg)
 {
   this->Socket->Skip(headerMsg->GetBodySizeToRead(), 0);
   this->Socket->CloseSocket();
@@ -341,7 +341,7 @@ int IGTLCommunicationBase::SkipMesage(igtl::MessageHeader* headerMsg)
 }
 
 
-int IGTLCommunicationBase::SendStringMessage(const char* name, const char* string)
+int OpenIGTLinkSockUtil::SendStringMessage(const char* name, const char* string)
 {
 
   std::cerr << "MESSAGE: Sending STRING( " << name << ", " << string << " )" << std::endl;
@@ -367,7 +367,7 @@ int IGTLCommunicationBase::SendStringMessage(const char* name, const char* strin
 }
 
 
-int IGTLCommunicationBase::SendTransformMessage(const char* name, igtl::Matrix4x4& matrix)
+int OpenIGTLinkSockUtil::SendTransformMessage(const char* name, igtl::Matrix4x4& matrix)
 {
   std::cerr << "MESSAGE: Sending TRANSFORM( " << name << " )" << std::endl;
 
@@ -396,7 +396,7 @@ int IGTLCommunicationBase::SendTransformMessage(const char* name, igtl::Matrix4x
 }
 
 
-int IGTLCommunicationBase::SendStatusMessage(const char* name, int Code, int SubCode,
+int OpenIGTLinkSockUtil::SendStatusMessage(const char* name, int Code, int SubCode,
                                 const char * errorName, const char* statusString)
 {
   std::cerr << "MESSAGE: Sending STATUS( " << name << " )" << std::endl;
@@ -437,7 +437,7 @@ int IGTLCommunicationBase::SendStatusMessage(const char* name, int Code, int Sub
 }
 
 
-void IGTLCommunicationBase::GetRandomTestMatrix(igtl::Matrix4x4& matrix)
+void OpenIGTLinkSockUtil::GetRandomTestMatrix(igtl::Matrix4x4& matrix)
 {
   float position[3];
   float orientation[4];
@@ -454,7 +454,7 @@ void IGTLCommunicationBase::GetRandomTestMatrix(igtl::Matrix4x4& matrix)
 }
 
 
-void IGTLCommunicationBase::GetRandomTestMatrix(igtl::Matrix4x4& matrix, float phi, float theta)
+void OpenIGTLinkSockUtil::GetRandomTestMatrix(igtl::Matrix4x4& matrix, float phi, float theta)
 {
   float position[3];
   float orientation[4];
@@ -483,7 +483,7 @@ void IGTLCommunicationBase::GetRandomTestMatrix(igtl::Matrix4x4& matrix, float p
 }
 
 
-int IGTLCommunicationBase::ReceiveTransform(igtl::MessageHeader* header, igtl::Matrix4x4& matrix)
+int OpenIGTLinkSockUtil::ReceiveTransform(igtl::MessageHeader* header, igtl::Matrix4x4& matrix)
 {
   std::cerr << "MESSAGE: Receiving TRANSFORM data type." << std::endl;
   
@@ -512,7 +512,7 @@ int IGTLCommunicationBase::ReceiveTransform(igtl::MessageHeader* header, igtl::M
   return 0;
 }
 
-int IGTLCommunicationBase::ReceiveString(igtl::MessageHeader* header, std::string& string)
+int OpenIGTLinkSockUtil::ReceiveString(igtl::MessageHeader* header, std::string& string)
 {
 
   std::cerr << "MESSAGE: Receiving STRING data type." << std::endl;
@@ -542,7 +542,7 @@ int IGTLCommunicationBase::ReceiveString(igtl::MessageHeader* header, std::strin
 }
 
 
-int IGTLCommunicationBase::ReceiveStatus(igtl::MessageHeader* header, int& code, int& subcode,
+int OpenIGTLinkSockUtil::ReceiveStatus(igtl::MessageHeader* header, int& code, int& subcode,
                                          std::string& name, std::string& status)
 {
 
@@ -583,7 +583,7 @@ int IGTLCommunicationBase::ReceiveStatus(igtl::MessageHeader* header, int& code,
 }
 
 
-int IGTLCommunicationBase::ReceiveStartTracking(igtl::MessageHeader* header, std::string& coord, int& res)
+int OpenIGTLinkSockUtil::ReceiveStartTracking(igtl::MessageHeader* header, std::string& coord, int& res)
 {
 
   std::cerr << "MESSAGE: Receiving STT_TDATA type." << std::endl;
@@ -613,7 +613,7 @@ int IGTLCommunicationBase::ReceiveStartTracking(igtl::MessageHeader* header, std
 }
 
 
-int IGTLCommunicationBase::ReceiveStopTracking(igtl::MessageHeader* header)
+int OpenIGTLinkSockUtil::ReceiveStopTracking(igtl::MessageHeader* header)
 {
 
   std::cerr << "MESSAGE: Receiving STT_TDATA type." << std::endl;
@@ -641,7 +641,7 @@ int IGTLCommunicationBase::ReceiveStopTracking(igtl::MessageHeader* header)
 }
 
 
-void IGTLCommunicationBase::PrintMatrix(std::string prefix, igtl::Matrix4x4& matrix)
+void OpenIGTLinkSockUtil::PrintMatrix(std::string prefix, igtl::Matrix4x4& matrix)
 {
   std::cout << prefix << " [" << matrix[0][0] << ", " << matrix[0][1] << ", " << matrix[0][2] << ", " << matrix[0][3] << "]" << std::endl;
   std::cout << prefix << " [" << matrix[1][0] << ", " << matrix[1][1] << ", " << matrix[1][2] << ", " << matrix[1][3] << "]" << std::endl;
@@ -650,7 +650,7 @@ void IGTLCommunicationBase::PrintMatrix(std::string prefix, igtl::Matrix4x4& mat
 }
 
 
-int IGTLCommunicationBase::ValidateMatrix(igtl::Matrix4x4& matrix)
+int OpenIGTLinkSockUtil::ValidateMatrix(igtl::Matrix4x4& matrix)
 {
   // Check if each column is normal:
   for (int i = 0; i < 3; i ++)
@@ -677,7 +677,7 @@ int IGTLCommunicationBase::ValidateMatrix(igtl::Matrix4x4& matrix)
 }
 
 
-int IGTLCommunicationBase::CompareMatrices(igtl::Matrix4x4& matrix1, igtl::Matrix4x4& matrix2, double tol)
+int OpenIGTLinkSockUtil::CompareMatrices(igtl::Matrix4x4& matrix1, igtl::Matrix4x4& matrix2, double tol)
 {
   
   // Check if each column is normal:

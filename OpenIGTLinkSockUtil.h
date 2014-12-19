@@ -1,6 +1,6 @@
 /*=========================================================================
 
-  Program:  OpenIGTLink Communication Base
+  Program:  OpenIGTLink Socket Utility Class
   Language:  C++
 
   Copyright (c) Brigham and Women's Hospital. All rights reserved.
@@ -11,14 +11,15 @@
 
 =========================================================================*/
 
-#ifndef __IGTLCommunicationBase_h
-#define __IGTLCommunicationBase_h
+#ifndef __OpenIGTLinkSockUtil_h
+#define __OpenIGTLinkSockUtil_h
 
 #include "igtlSocket.h"
 #include "igtlMath.h"
 #include "igtlMessageBase.h"
+#include "igtlMutexLock.h"
 
-class IGTLCommunicationBase
+class OpenIGTLinkSockUtil
 {
 
 public:
@@ -29,12 +30,11 @@ public:
   };
 
 public:
-  IGTLCommunicationBase();
-  ~IGTLCommunicationBase();
-
-  virtual const char* Name()=0;
+  OpenIGTLinkSockUtil();
+  ~OpenIGTLinkSockUtil();
 
   void SetSocket(igtl::Socket* socket);
+  igtl::Socket* GetSocket(igtl::Socket* socket) { return this->Socket; }
 
   // PushMessage() sends the specified OpenIGTLink message. The PushMessage() is thread-safe
   // -- it implements the semaphor internally, so that it can be called from multiple threads.
@@ -106,6 +106,7 @@ public:
   // Otherwise, it returns 1.
   int  CompareMatrices(igtl::Matrix4x4& matrix1, igtl::Matrix4x4& matrix2, double tol);
 
+
 protected:
 
   igtl::Socket::Pointer Socket;
@@ -113,4 +114,4 @@ protected:
 
 };
 
-#endif //__IGTLCommunicationBase_h
+#endif //__OpenIGTLinkSockUtil_h
