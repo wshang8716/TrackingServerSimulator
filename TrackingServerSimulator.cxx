@@ -24,10 +24,10 @@
 #include "igtlOSUtil.h"
 #include "igtlTimeStamp.h"
 
-#include "ServerPhaseBase.h"
-#include "ServerInitializationPhase.h"
-#include "ServerStartUpPhase.h"
-#include "ServerStandByPhase.h"
+#include "ServerStateBase.h"
+#include "ServerInitializationState.h"
+#include "ServerStartUpState.h"
+#include "ServerStandByState.h"
 
 #include "ServerInfoBase.h"
 #include "SessionController.h"
@@ -44,9 +44,9 @@ int main(int argc, char* argv[])
 
   //------------------------------------------------------------
   // Setup workphases
-  controller->RegisterPhase(new ServerInitializationPhase);
-  controller->RegisterPhase(new ServerStartUpPhase);
-  controller->RegisterPhase(new ServerStandByPhase);
+  controller->RegisterState(new ServerInitializationState);
+  controller->RegisterState(new ServerStartUpState);
+  controller->RegisterState(new ServerStandByState);
 
   //------------------------------------------------------------
   // Parse Arguments

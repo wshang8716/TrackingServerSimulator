@@ -1,6 +1,6 @@
 /*=========================================================================
 
-  Program:   OpenIGTLink Communication Server: Tracking Phase
+  Program:   OpenIGTLink Communication Server: Tracking State
   Language:  C++
 
   Copyright (c) Brigham and Women's Hospital. All rights reserved.
@@ -11,7 +11,7 @@
 
 =========================================================================*/
 
-#include "ServerTrackingPhase.h"
+#include "ServerTrackingState.h"
 #include <string.h>
 #include <stdlib.h>
 
@@ -22,8 +22,8 @@
 #include "igtlTransformMessage.h"
 #include <cmath>
 
-ServerTrackingPhase::ServerTrackingPhase() :
-  ServerPhaseBase()
+ServerTrackingState::ServerTrackingState() :
+  ServerStateBase()
 {
   // Register Device-not-ready defect
   this->RegisterDefectType("DNR", "Device-not-ready in START_UP phase.");
@@ -53,12 +53,12 @@ ServerTrackingPhase::ServerTrackingPhase() :
 }
 
 
-ServerTrackingPhase::~ServerTrackingPhase()
+ServerTrackingState::~ServerTrackingState()
 {
 }
 
 
-int ServerTrackingPhase::Initialize()
+int ServerTrackingState::Initialize()
 {
 
   this->SockUtil->SendStatusMessage("STATE", igtl::StatusMessage::STATUS_OK, 0, this->Name());
@@ -67,10 +67,10 @@ int ServerTrackingPhase::Initialize()
 }
 
 
-int ServerTrackingPhase::MessageHandler(igtl::MessageHeader* headerMsg)
+int ServerTrackingState::MessageHandler(igtl::MessageHeader* headerMsg)
 {
 
-  int r = ServerPhaseBase::MessageHandler(headerMsg);
+  int r = ServerStateBase::MessageHandler(headerMsg);
   if (r != NOT_PROCESSED)
     {
     return r;
@@ -79,7 +79,7 @@ int ServerTrackingPhase::MessageHandler(igtl::MessageHeader* headerMsg)
   if (this->SockUtil->CheckMessageTypeAndName(headerMsg, "STP_TDATA", "TRACKING"))
     {
     this->SockUtil->ReceiveStopTracking(headerMsg);
-    this->SetNextWorkPhase("STANDBY");
+    this->SetNextWorkState("STANDBY");
     return PHASE_CHANGE_REQUIRED;
     }
   else if (this->SockUtil->CheckMessageTypeAndName(headerMsg, "STRING", "NAME"))
@@ -88,7 +88,7 @@ int ServerTrackingPhase::MessageHandler(igtl::MessageHeader* headerMsg)
     this->SockUtil->ReceiveString(headerMsg, string);
     if (string.compare("INIT") == 0)
       {
-      this->SetNextWorkPhase("INIT");
+      this->SetNextWorkState("INIT");
       return PHASE_CHANGE_REQUIRED;
       }
     }
@@ -97,9 +97,9 @@ int ServerTrackingPhase::MessageHandler(igtl::MessageHeader* headerMsg)
 }
 
 
-int ServerTrackingPhase::TimerHandler(long timestamp)
+int ServerTrackingState::TimerHandler(long timestamp)
 {
-  std::cerr << "ServerTrackingPhase::TimerHandler() is called" << std::endl;
+  std::cerr << "ServerTrackingState::TimerHandler() is called" << std::endl;
 
   igtl::Matrix4x4 matrix;
 

@@ -16,7 +16,7 @@
 #define __SessionController_h
 
 #include "igtlSocket.h"
-#include "ServerPhaseBase.h"
+#include "ServerStateBase.h"
 
 
 class SessionController
@@ -36,16 +36,16 @@ public:
 public:
 
   // Register a new phase and return the number of registered phases.
-  int  RegisterPhase(ServerPhaseBase*);
+  int  RegisterState(ServerStateBase*);
 
   // Unregister the all phases (The all objects will be deleted)
-  void UnregisterAllPhases();
+  void UnregisterAllStates();
 
-  int  GetNumberOfPhases();
+  int  GetNumberOfStates();
 
-  ServerPhaseBase* GetPhase(int i);
+  ServerStateBase* GetState(int i);
   
-  ServerPhaseBase* GetCurrentPhase();
+  ServerStateBase* GetCurrentState();
   
 
   // Activate defect (for testing); returns 1 if successful.
@@ -73,7 +73,7 @@ protected:
 
 protected:
 
-  typedef std::vector< ServerPhaseBase* > WorkphaseList;
+  typedef std::vector< ServerStateBase* > WorkphaseList;
 
   igtl::Socket::Pointer Socket;
 
@@ -81,8 +81,8 @@ protected:
   int TimerInterval;
   int SessionStatus; // SESSION_*
 
-  WorkphaseList PhaseList;
-  ServerPhaseBase* CurrentPhase; // Current workphase
+  WorkphaseList StateList;
+  ServerStateBase* CurrentState; // Current workphase
 
   bool ThreadAlive;
 

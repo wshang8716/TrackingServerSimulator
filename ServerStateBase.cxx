@@ -11,7 +11,7 @@
 
 =========================================================================*/
 
-#include "ServerPhaseBase.h"
+#include "ServerStateBase.h"
 #include <string.h>
 #include <stdlib.h>
 
@@ -23,28 +23,28 @@
 #include <cmath>
 
 
-ServerPhaseBase::ServerPhaseBase()
+ServerStateBase::ServerStateBase()
 {
   this->NextWorkphase.clear();
   this->ServerInfo = NULL;
 }
 
 
-ServerPhaseBase::~ServerPhaseBase()
+ServerStateBase::~ServerStateBase()
 {
 }
 
 
-//int ServerPhaseBase::Enter(const char* queryID)
-int ServerPhaseBase::Enter()
+//int ServerStateBase::Enter(const char* queryID)
+int ServerStateBase::Enter()
 {
   // Display the new phase
-  std::cerr << "Enter Phase: " << this->Name() << std::endl;
+  std::cerr << "Enter State: " << this->Name() << std::endl;
   return this->Initialize();
 }
 
 
-int ServerPhaseBase::Process()
+int ServerStateBase::Process()
 {
 
   // Set the name of the current workphase as the next one.
@@ -63,7 +63,7 @@ int ServerPhaseBase::Process()
 }
 
 
-int ServerPhaseBase::MessageHandler(igtl::MessageHeader* headerMsg)
+int ServerStateBase::MessageHandler(igtl::MessageHeader* headerMsg)
 {
 
   if (this->SockUtil->CheckMessageTypeAndName(headerMsg, "GET_STATUS", "STATE"))
@@ -78,7 +78,7 @@ int ServerPhaseBase::MessageHandler(igtl::MessageHeader* headerMsg)
 }
 
 
-//int ServerPhaseBase::CheckWorkphaseChange(igtl::MessageHeader* headerMsg)
+//int ServerStateBase::CheckWorkphaseChange(igtl::MessageHeader* headerMsg)
 //{
 //
 //  // Check if the message requests phase transition
@@ -138,7 +138,7 @@ int ServerPhaseBase::MessageHandler(igtl::MessageHeader* headerMsg)
 //}
 
 
-int ServerPhaseBase::CheckCommonMessage(igtl::MessageHeader* headerMsg)
+int ServerStateBase::CheckCommonMessage(igtl::MessageHeader* headerMsg)
 {
   /// Check if GET_TRANSFORM has been received
   if (strcmp(headerMsg->GetDeviceType(), "GET_TRANSFORM") == 0 &&
@@ -159,7 +159,7 @@ int ServerPhaseBase::CheckCommonMessage(igtl::MessageHeader* headerMsg)
 
 
 
-int ServerPhaseBase::SetDefectStatus(const char * type, int s)
+int ServerStateBase::SetDefectStatus(const char * type, int s)
 {
   std::map< std::string, int >::iterator iter;
   iter = this->DefectStatus.find(type);
@@ -175,7 +175,7 @@ int ServerPhaseBase::SetDefectStatus(const char * type, int s)
     }
 }
 
-int ServerPhaseBase::GetDefectStatus(const char * type)
+int ServerStateBase::GetDefectStatus(const char * type)
 {
   std::map< std::string, int >::iterator iter;
   iter = this->DefectStatus.find(type);
@@ -189,7 +189,7 @@ int ServerPhaseBase::GetDefectStatus(const char * type)
     }
 }
 
-std::list< std::string > ServerPhaseBase::GetDefectTypeList()
+std::list< std::string > ServerStateBase::GetDefectTypeList()
 {
   std::list< std::string > list;
   list.clear();
@@ -203,7 +203,7 @@ std::list< std::string > ServerPhaseBase::GetDefectTypeList()
   return list;
 }
 
-std::string ServerPhaseBase::GetDefectTypeDescription(const char * type)
+std::string ServerStateBase::GetDefectTypeDescription(const char * type)
 {
   std::map< std::string, std::string >::iterator iter;
   iter = this->DefectDescription.find(type);
@@ -217,7 +217,7 @@ std::string ServerPhaseBase::GetDefectTypeDescription(const char * type)
     }
 }
 
-int ServerPhaseBase::RegisterDefectType(const char* name, const char* desc)
+int ServerStateBase::RegisterDefectType(const char* name, const char* desc)
 {
   this->DefectStatus[name] = 0; // set 0 status
   this->DefectDescription[name] = desc;

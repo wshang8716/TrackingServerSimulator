@@ -1,6 +1,6 @@
 /*=========================================================================
 
-  Program:   OpenIGTLink Communication Server: StartUp Phase
+  Program:   OpenIGTLink Communication Server: StartUp State
   Language:  C++
 
   Copyright (c) Brigham and Women's Hospital. All rights reserved.
@@ -11,7 +11,7 @@
 
 =========================================================================*/
 
-#include "ServerStartUpPhase.h"
+#include "ServerStartUpState.h"
 #include <string.h>
 #include <stdlib.h>
 
@@ -22,28 +22,28 @@
 #include "igtlTransformMessage.h"
 #include <cmath>
 
-ServerStartUpPhase::ServerStartUpPhase() :
-  ServerPhaseBase()
+ServerStartUpState::ServerStartUpState() :
+  ServerStateBase()
 {
   // Register Device-not-ready defect
   this->RegisterDefectType("DNR", "Device-not-ready in START_UP phase.");
 }
 
 
-ServerStartUpPhase::~ServerStartUpPhase()
+ServerStartUpState::~ServerStartUpState()
 {
 }
 
-int ServerStartUpPhase::Initialize()
+int ServerStartUpState::Initialize()
 {
   return PHASE_CHANGE_NOT_REQUIRED;
 }
 
 
-int ServerStartUpPhase::MessageHandler(igtl::MessageHeader* headerMsg)
+int ServerStartUpState::MessageHandler(igtl::MessageHeader* headerMsg)
 {
 
-  int r = ServerPhaseBase::MessageHandler(headerMsg);
+  int r = ServerStateBase::MessageHandler(headerMsg);
   if (r != NOT_PROCESSED)
     {
     return r;
@@ -55,10 +55,10 @@ int ServerStartUpPhase::MessageHandler(igtl::MessageHeader* headerMsg)
 }
 
 
-int ServerStartUpPhase::TimerHandler(long timestamp)
+int ServerStartUpState::TimerHandler(long timestamp)
 {
 
-  std::cerr << "ServerStartUpPhase::TimerHandler() is called" << std::endl;
+  std::cerr << "ServerStartUpState::TimerHandler() is called" << std::endl;
   return 0;
 
 }

@@ -1,6 +1,6 @@
 /*=========================================================================
 
-  Program:   OpenIGTLink Communication Server: Initialization Phase
+  Program:   OpenIGTLink Communication Server: StartUp State
   Language:  C++
 
   Copyright (c) Brigham and Women's Hospital. All rights reserved.
@@ -11,22 +11,22 @@
 
 =========================================================================*/
 
-#ifndef __ServerInitializationPhase_h
-#define __ServerInitializationPhase_h
+#ifndef __ServerStartUpState_h
+#define __ServerStartUpState_h
 
 #include "igtlSocket.h"
 #include "igtlMath.h"
 #include "igtlMessageBase.h"
-#include "ServerPhaseBase.h"
+#include "ServerStateBase.h"
 
-class ServerInitializationPhase : public ServerPhaseBase
+class ServerStartUpState : public ServerStateBase
 {
 public:
 
-  ServerInitializationPhase();
-  ~ServerInitializationPhase();
+  ServerStartUpState();
+  ~ServerStartUpState();
 
-  virtual const char* Name() { return "INIT"; };
+  virtual const char* Name() { return "STARTUP"; };
 
   virtual int Initialize();
   virtual int MessageHandler(igtl::MessageHeader* headerMsg);
@@ -36,4 +36,4 @@ protected:
 
 };
 
-#endif //__ServerInitializationPhase_h
+#endif //__ServerStartUpState_h

@@ -21,11 +21,11 @@
 SessionController::SessionController()
 {
 
-  this->PhaseList.clear();
+  this->StateList.clear();
   this->Socket = NULL;
   this->TimerInterval = 100; // Default 100 ms
   this->SessionStatus = SESSION_INACTIVE;
-  this->CurrentPhase = NULL;
+  this->CurrentState = NULL;
   this->ThreadAlive = 0;
   this->PortNumber = 18944;
   this->SStatus = NULL;
@@ -36,58 +36,58 @@ SessionController::SessionController()
 SessionController::~SessionController()
 {
 
-  UnregisterAllPhases();
+  UnregisterAllStates();
 
 }
 
 
-int SessionController::RegisterPhase(ServerPhaseBase* phase)
+int SessionController::RegisterState(ServerStateBase* phase)
 {
 
   if (!this->SStatus)
     {
     std::cerr << "ERROR: ServerInfoBase object is not available." << std::endl;
-    return this->PhaseList.size();
+    return this->StateList.size();
     }
 
   if (!phase)
     {
-    std::cerr << "ERROR: Phase object is empty." << std::endl;
-    return this->PhaseList.size();
+    std::cerr << "ERROR: State object is empty." << std::endl;
+    return this->StateList.size();
     }
   
-  this->PhaseList.push_back(phase);
+  this->StateList.push_back(phase);
   phase->SetServerInfo(this->SStatus);
-  return this->PhaseList.size();
+  return this->StateList.size();
 
 }
 
 
-void SessionController::UnregisterAllPhases()
+void SessionController::UnregisterAllStates()
 {
 
   WorkphaseList::iterator wit;
 
-  for (wit = this->PhaseList.begin(); wit != this->PhaseList.end(); wit ++)
+  for (wit = this->StateList.begin(); wit != this->StateList.end(); wit ++)
     {
     delete *wit;
     }
-  this->PhaseList.clear();
+  this->StateList.clear();
 
 }
 
 
-int SessionController::GetNumberOfPhases()
+int SessionController::GetNumberOfStates()
 {
-  return this->PhaseList.size();
+  return this->StateList.size();
 }
 
 
-ServerPhaseBase* SessionController::GetPhase(int i)
+ServerStateBase* SessionController::GetState(int i)
 {
-  if (i >= 0 && i < this->PhaseList.size())
+  if (i >= 0 && i < this->StateList.size())
     {
-    return this->PhaseList[i];
+    return this->StateList[i];
     }
   else
     {
@@ -96,9 +96,9 @@ ServerPhaseBase* SessionController::GetPhase(int i)
 }
 
 
-ServerPhaseBase* SessionController::GetCurrentPhase()
+ServerStateBase* SessionController::GetCurrentState()
 {
-  return this->CurrentPhase;
+  return this->CurrentState;
 }
 
 
@@ -107,7 +107,7 @@ int SessionController::ActivateDefect(const char* phaseName, const char* type)
 
   WorkphaseList::iterator witer;
 
-  for (witer = this->PhaseList.begin(); witer != this->PhaseList.end(); witer ++)
+  for (witer = this->StateList.begin(); witer != this->StateList.end(); witer ++)
     {
     if (strcmp(phaseName, (*witer)->Name()) == 0)
       {
@@ -125,7 +125,7 @@ void SessionController::PrintDefectStatus()
 {
   WorkphaseList::iterator wit;
 
-  for (wit = this->PhaseList.begin(); wit != this->PhaseList.end(); wit ++)
+  for (wit = this->StateList.begin(); wit != this->StateList.end(); wit ++)
     {
     std::list< std::string > typeList;
     typeList = (*wit)->GetDefectTypeList();
@@ -144,7 +144,7 @@ void SessionController::PrintAvailableDefectTypes()
 {
 
   WorkphaseList::iterator wit;
-  for (wit = this->PhaseList.begin(); wit != this->PhaseList.end(); wit ++)
+  for (wit = this->StateList.begin(); wit != this->StateList.end(); wit ++)
     {
     std::list< std::string > typeList;
     typeList = (*wit)->GetDefectTypeList();
@@ -231,9 +231,9 @@ void SessionController::MonitorThread(void * ptr)
     time0 = timeStamp->GetTimeStampInNanoseconds();
     
     // Call timer handler for the current workhpase
-    if (controller->CurrentPhase)
+    if (controller->CurrentState)
       {
-      controller->CurrentPhase->TimerHandler(time0);
+      controller->CurrentState->TimerHandler(time0);
       }
     
     // Get the end time
@@ -266,8 +266,8 @@ int SessionController::Session()
 
   //------------------------------------------------------------
   // Set socket and robot status
-  std::vector< ServerPhaseBase* >::iterator iter;
-  for (iter = PhaseList.begin(); iter != PhaseList.end(); iter ++)
+  std::vector< ServerStateBase* >::iterator iter;
+  for (iter = StateList.begin(); iter != StateList.end(); iter ++)
     {
     (*iter)->SetServerInfo(rs);
     (*iter)->SetServerInfo(rs);
@@ -275,43 +275,43 @@ int SessionController::Session()
 
   //------------------------------------------------------------
   // Set initial phase as the current phase;
-  //WorkphaseList::iterator currentPhase = PhaseList.begin();
-  this->CurrentPhase = PhaseList[0];
+  //WorkphaseList::iterator currentState = StateList.begin();
+  this->CurrentState = StateList[0];
   
   int connect = 1;
   int fEnter = 1;
   
   //------------------------------------------------------------
   // loop
-  while (connect && this->CurrentPhase)
+  while (connect && this->CurrentState)
     {
-    int fPhaseChange = 0;
+    int fStateChange = 0;
 
     if (fEnter)
       {
-      fPhaseChange = this->CurrentPhase->Enter();
+      fStateChange = this->CurrentState->Enter();
       fEnter = 0;
       }
 
-    if (!fPhaseChange)
+    if (!fStateChange)
       {
-      fPhaseChange = this->CurrentPhase->Process();
+      fStateChange = this->CurrentState->Process();
       }
 
-    if (fPhaseChange)
+    if (fStateChange)
       {
       // If Enter() or Process() returns 1, phase change has been requested.
-      std::cerr << "MESSAGE: Phase change requested." << std::endl;
-      std::string requestedWorkphase = this->CurrentPhase->GetNextWorkPhase();
+      std::cerr << "MESSAGE: State change requested." << std::endl;
+      std::string requestedWorkphase = this->CurrentState->GetNextWorkState();
 
       // Find the requested workphase
-      std::vector<  ServerPhaseBase* >::iterator iter;
-      for (iter = PhaseList.begin(); iter != PhaseList.end(); iter ++)
+      std::vector<  ServerStateBase* >::iterator iter;
+      for (iter = StateList.begin(); iter != StateList.end(); iter ++)
         {
         if (strcmp((*iter)->Name(), requestedWorkphase.c_str()) == 0)
           {
           // Change the current phase
-          this->CurrentPhase = *iter;
+          this->CurrentState = *iter;
           fEnter = 1;
           break;
           }

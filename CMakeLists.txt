@@ -13,11 +13,11 @@ include(${OpenIGTLink_USE_FILE})
 set(TRACKING_SERVER_SOURCE
   OpenIGTLinkSockUtil.cxx
   ServerInfoBase.cxx
-  ServerPhaseBase.cxx
-  ServerInitializationPhase.cxx
-  ServerStartUpPhase.cxx
-  ServerStandByPhase.cxx
-  ServerTrackingPhase.cxx
+  ServerStateBase.cxx
+  ServerInitializationState.cxx
+  ServerStartUpState.cxx
+  ServerStandByState.cxx
+  ServerTrackingState.cxx
   SessionController.cxx
   TrackingServerSimulator.cxx
 )

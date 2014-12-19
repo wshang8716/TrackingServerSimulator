@@ -1,6 +1,6 @@
 /*=========================================================================
 
-  Program:   OpenIGTLink Communication Server: StandBy Phase
+  Program:   OpenIGTLink Communication Server: StandBy State
   Language:  C++
 
   Copyright (c) Brigham and Women's Hospital. All rights reserved.
@@ -11,7 +11,7 @@
 
 =========================================================================*/
 
-#include "ServerStandByPhase.h"
+#include "ServerStandByState.h"
 #include <string.h>
 #include <stdlib.h>
 
@@ -22,20 +22,20 @@
 #include "igtlTransformMessage.h"
 #include <cmath>
 
-ServerStandByPhase::ServerStandByPhase() :
-  ServerPhaseBase()
+ServerStandByState::ServerStandByState() :
+  ServerStateBase()
 {
   // Register Device-not-ready defect
   this->RegisterDefectType("DNR", "Device-not-ready in START_UP phase.");
 }
 
 
-ServerStandByPhase::~ServerStandByPhase()
+ServerStandByState::~ServerStandByState()
 {
 }
 
 
-int ServerStandByPhase::Initialize()
+int ServerStandByState::Initialize()
 {
 
   this->SockUtil->SendStatusMessage("STATE", igtl::StatusMessage::STATUS_OK, 0, this->Name());
@@ -44,10 +44,10 @@ int ServerStandByPhase::Initialize()
 }
 
 
-int ServerStandByPhase::MessageHandler(igtl::MessageHeader* headerMsg)
+int ServerStandByState::MessageHandler(igtl::MessageHeader* headerMsg)
 {
 
-  int r = ServerPhaseBase::MessageHandler(headerMsg);
+  int r = ServerStateBase::MessageHandler(headerMsg);
   if (r != NOT_PROCESSED)
     {
     return r;
@@ -60,7 +60,7 @@ int ServerStandByPhase::MessageHandler(igtl::MessageHeader* headerMsg)
     this->SockUtil->ReceiveStartTracking(headerMsg, coord, res);
     this->ServerInfo->SetTrackingResolution(res);
     this->ServerInfo->SetTrackingCoordinate(coord.c_str());
-    this->SetNextWorkPhase("STANDBY");
+    this->SetNextWorkState("STANDBY");
     return PHASE_CHANGE_REQUIRED;
     }
   else if (this->SockUtil->CheckMessageTypeAndName(headerMsg, "STRING", "NAME"))
@@ -69,7 +69,7 @@ int ServerStandByPhase::MessageHandler(igtl::MessageHeader* headerMsg)
     this->SockUtil->ReceiveString(headerMsg, string);
     if (string.compare("INIT") == 0)
       {
-      this->SetNextWorkPhase("INIT");
+      this->SetNextWorkState("INIT");
       return PHASE_CHANGE_REQUIRED;
       }
     }
@@ -78,10 +78,10 @@ int ServerStandByPhase::MessageHandler(igtl::MessageHeader* headerMsg)
 }
 
 
-int ServerStandByPhase::TimerHandler(long timestamp)
+int ServerStandByState::TimerHandler(long timestamp)
 {
 
-  std::cerr << "ServerStandByPhase::TimerHandler() is called" << std::endl;
+  std::cerr << "ServerStandByState::TimerHandler() is called" << std::endl;
   return 0;
 
 }

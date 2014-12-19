@@ -1,6 +1,6 @@
 /*=========================================================================
 
-  Program:   OpenIGTLink Communication Server: Initialization Phase
+  Program:   OpenIGTLink Communication Server: Initialization State
   Language:  C++
 
   Copyright (c) Brigham and Women's Hospital. All rights reserved.
@@ -11,8 +11,8 @@
 
 =========================================================================*/
 
-#ifndef __ServerPhaseBase_h
-#define __ServerPhaseBase_h
+#ifndef __ServerStateBase_h
+#define __ServerStateBase_h
 
 #include <string>
 #include <map>
@@ -23,7 +23,7 @@
 #include "OpenIGTLinkSockUtil.h"
 
 
-class ServerPhaseBase
+class ServerStateBase
 {
 public:
 
@@ -35,8 +35,8 @@ public:
   };
 
 public:
-  ServerPhaseBase();
-  virtual ~ServerPhaseBase();
+  ServerStateBase();
+  virtual ~ServerStateBase();
 
   virtual const char* Name()=0;
 
@@ -74,8 +74,8 @@ public:
   // The function must be defined in the child classes.
   virtual int TimerHandler(long timestamp) = 0; 
 
-  void SetNextWorkPhase(const char* phase)  { this->NextWorkphase = phase; }
-  std::string GetNextWorkPhase() { return this->NextWorkphase; };
+  void SetNextWorkState(const char* phase)  { this->NextWorkphase = phase; }
+  std::string GetNextWorkState() { return this->NextWorkphase; };
   //std::string GetQueryID() { return this->QueryID; };
 
   // Enable/disable defects. Specify s=1 when enabled.
@@ -116,4 +116,4 @@ protected:
 
 };
 
-#endif //__ServerPhaseBase_h
+#endif //__ServerStateBase_h

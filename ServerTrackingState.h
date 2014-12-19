@@ -1,6 +1,5 @@
-/*=========================================================================
-
-  Program:   OpenIGTLink Communication Server: StartUp Phase
+/*========================================================================= 
+  Program:   OpenIGTLink Communication Server: Tracking State
   Language:  C++
 
   Copyright (c) Brigham and Women's Hospital. All rights reserved.
@@ -11,20 +10,21 @@
 
 =========================================================================*/
 
-#ifndef __ServerStartUpPhase_h
-#define __ServerStartUpPhase_h
+#ifndef __ServerTrackingState_h
+#define __ServerTrackingState_h
 
 #include "igtlSocket.h"
 #include "igtlMath.h"
 #include "igtlMessageBase.h"
-#include "ServerPhaseBase.h"
+#include "igtlTrackingDataMessage.h"
+#include "ServerStateBase.h"
 
-class ServerStartUpPhase : public ServerPhaseBase
+class ServerTrackingState : public ServerStateBase
 {
 public:
 
-  ServerStartUpPhase();
-  ~ServerStartUpPhase();
+  ServerTrackingState();
+  ~ServerTrackingState();
 
   virtual const char* Name() { return "STARTUP"; };
 
@@ -34,6 +34,8 @@ public:
 
 protected:
 
+  igtl::TrackingDataMessage::Pointer TrackingMsg;
+
 };
 
-#endif //__ServerStartUpPhase_h
+#endif //__ServerTrackingState_h

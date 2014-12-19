@@ -1,6 +1,6 @@
 /*=========================================================================
 
-  Program:   OpenIGTLink Communication Server: Initialization Phase
+  Program:   OpenIGTLink Communication Server: Initialization State
   Language:  C++
 
   Copyright (c) Brigham and Women's Hospital. All rights reserved.
@@ -11,7 +11,7 @@
 
 =========================================================================*/
 
-#include "ServerInitializationPhase.h"
+#include "ServerInitializationState.h"
 #include <string.h>
 #include <stdlib.h>
 
@@ -22,19 +22,19 @@
 #include "igtlTransformMessage.h"
 #include <cmath>
 
-ServerInitializationPhase::ServerInitializationPhase() :
-  ServerPhaseBase()
+ServerInitializationState::ServerInitializationState() :
+  ServerStateBase()
 {
   // Register Device-not-ready defect
   this->RegisterDefectType("DNR", "Device-not-ready in START_UP phase.");
 }
 
 
-ServerInitializationPhase::~ServerInitializationPhase()
+ServerInitializationState::~ServerInitializationState()
 {
 }
 
-int ServerInitializationPhase::Initialize()
+int ServerInitializationState::Initialize()
 {
 
   this->SockUtil->SendStatusMessage("STATE", igtl::StatusMessage::STATUS_OK, 0, this->Name());
@@ -52,16 +52,16 @@ int ServerInitializationPhase::Initialize()
     {
     // Normal
     this->SockUtil->SendStatusMessage(this->Name(), 1, 0);
-    this->SetNextWorkPhase("STANDBY");
+    this->SetNextWorkState("STANDBY");
     return PHASE_CHANGE_REQUIRED;
     }
 }
 
 
-int ServerInitializationPhase::MessageHandler(igtl::MessageHeader* headerMsg)
+int ServerInitializationState::MessageHandler(igtl::MessageHeader* headerMsg)
 {
 
-  int r = ServerPhaseBase::MessageHandler(headerMsg);
+  int r = ServerStateBase::MessageHandler(headerMsg);
   if (r != NOT_PROCESSED)
     {
     return r;
@@ -72,10 +72,10 @@ int ServerInitializationPhase::MessageHandler(igtl::MessageHeader* headerMsg)
 }
 
 
-int ServerInitializationPhase::TimerHandler(long timestamp)
+int ServerInitializationState::TimerHandler(long timestamp)
 {
 
-  std::cerr << "ServerInitializationPhase::TimerHandler() is called" << std::endl;
+  std::cerr << "ServerInitializationState::TimerHandler() is called" << std::endl;
   return 0;
 
 }
