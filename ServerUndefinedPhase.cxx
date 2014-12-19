@@ -49,7 +49,7 @@ int ServerUndefinedPhase::MessageHandler(igtl::MessageHeader* headerMsg)
     stringMsg = igtl::StringMessage::New();
     stringMsg->SetMessageHeader(headerMsg);
     stringMsg->AllocatePack();
-    int r = this->Socket->Receive(stringMsg->GetPackBodyPointer(), stringMsg->GetPackBodySize());
+    int r = this->SockUtil->Receive(stringMsg->GetPackBodyPointer(), stringMsg->GetPackBodySize());
     if (r < 0)
       {
       std::cerr << "ERROR: Timeout." << std::endl;

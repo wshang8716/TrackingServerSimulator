@@ -27,6 +27,7 @@ TestClientProtocolBase::TestClientProtocolBase()
   this->TimeoutShort  = DEFULT_TIMEOUT_SHORT;
   this->TimeoutMedium = DEFULT_TIMEOUT_MEDIUM;
   this->TimeoutLong   = DEFULT_TIMEOUT_LONG;
+  this->SockUtil = NULL;
 }
 
 
@@ -37,7 +38,7 @@ TestClientProtocolBase::~TestClientProtocolBase()
 
 int TestClientProtocolBase::Exec()
 {
-  if (this->Socket.IsNotNull())
+  if (this->SockUtil)
     {
     ErrorPointType errorPoint = this->Test();
     if (errorPoint == SUCCESS)

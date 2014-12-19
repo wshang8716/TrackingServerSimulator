@@ -17,7 +17,6 @@
 #include "igtlSocket.h"
 #include "igtlMath.h"
 #include "igtlMessageBase.h"
-#include "igtlMutexLock.h"
 
 class IGTLCommunicationBase
 {
@@ -110,7 +109,6 @@ public:
 protected:
 
   igtl::Socket::Pointer Socket;
-  
   igtl::MutexLock::Pointer Mutex;
 
 };

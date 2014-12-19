@@ -23,10 +23,10 @@
 #include <cmath>
 
 
-ServerPhaseBase::ServerPhaseBase() : IGTLCommunicationBase()
+ServerPhaseBase::ServerPhaseBase()
 {
   this->NextWorkphase.clear();
-  this->SStatus = NULL;
+  this->ServerInfo = NULL;
 }
 
 
@@ -55,7 +55,7 @@ int ServerPhaseBase::Process()
   headerMsg = igtl::MessageHeader::New();
 
   // Recieve a message header
-  ReceiveMessageHeader(headerMsg, 0);
+  this->SockUtil->ReceiveMessageHeader(headerMsg, 0);
 
   // Handle the message
   return this->MessageHandler(headerMsg); // Returns 0, if a workhpase change is requested.
@@ -66,9 +66,9 @@ int ServerPhaseBase::Process()
 int ServerPhaseBase::MessageHandler(igtl::MessageHeader* headerMsg)
 {
 
-  if (this->CheckMessageTypeAndName(headerMsg, "GET_STATUS", "STATE"))
+  if (this->SockUtil->CheckMessageTypeAndName(headerMsg, "GET_STATUS", "STATE"))
     {
-    this->SendStatusMessage("STATE", igtl::StatusMessage::STATUS_OK, 0, this->Name());
+    this->SockUtil->SendStatusMessage("STATE", igtl::StatusMessage::STATUS_OK, 0, this->Name());
     return PHASE_CHANGE_NOT_REQUIRED;
     }
   else
@@ -150,7 +150,7 @@ int ServerPhaseBase::CheckCommonMessage(igtl::MessageHeader* headerMsg)
   else if (strcmp(headerMsg->GetDeviceType(), "GET_STATUS") == 0 &&
            strncmp(headerMsg->GetDeviceName(), "CURRENT_STATUS", 4) == 0)
     {
-    this->SendStatusMessage(this->Name(), 1, 0);
+    this->SockUtil->SendStatusMessage(this->Name(), 1, 0);
     return 1;
     }
 

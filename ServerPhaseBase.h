@@ -17,14 +17,13 @@
 #include <string>
 #include <map>
 
-#include "igtlSocket.h"
 #include "igtlMath.h"
 #include "igtlMessageBase.h"
-#include "IGTLCommunicationBase.h"
 #include "ServerInfoBase.h"
+#include "OpenIGTLinkSockUtil.h"
 
 
-class ServerPhaseBase : public IGTLCommunicationBase
+class ServerPhaseBase
 {
 public:
 
@@ -88,7 +87,10 @@ public:
   std::list< std::string > GetDefectTypeList();
   std::string GetDefectTypeDescription(const char * type);
 
-  void SetServerInfo(ServerInfoBase* rs) { this->SStatus = rs; };
+  void SetServerInfo(ServerInfoBase* rs) { this->ServerInfo = rs; }
+  ServerInfoBase* GetServerInfo() { return this->ServerInfo; }
+
+  void SetSockUtil(OpenIGTLinkSockUtil* su) { this->SockUtil = su; }
 
 protected:
 
@@ -109,7 +111,8 @@ protected:
   std::map< std::string, int > DefectStatus;
   std::map< std::string, std::string > DefectDescription;
 
-  ServerInfoBase* SStatus;
+  ServerInfoBase* ServerInfo;
+  OpenIGTLinkSockUtil* SockUtil;
 
 };
 

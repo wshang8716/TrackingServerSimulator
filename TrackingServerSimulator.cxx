@@ -45,7 +45,6 @@ int main(int argc, char* argv[])
 
   //------------------------------------------------------------
   // Setup workphases
-  controller->RegisterPhase(new ServerUndefinedPhase);
   controller->RegisterPhase(new ServerInitializationPhase);
   controller->RegisterPhase(new ServerStartUpPhase);
   controller->RegisterPhase(new ServerStandByPhase);

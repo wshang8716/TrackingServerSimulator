@@ -11,10 +11,9 @@ include(${OpenIGTLink_USE_FILE})
 
 
 set(TRACKING_SERVER_SOURCE
-  IGTLCommunicationBase.cxx
+  OpenIGTLinkSockUtil.cxx
   ServerInfoBase.cxx
   ServerPhaseBase.cxx
-  ServerUndefinedPhase.cxx
   ServerInitializationPhase.cxx
   ServerStartUpPhase.cxx
   ServerStandByPhase.cxx
@@ -25,7 +24,7 @@ set(TRACKING_SERVER_SOURCE
 
 
 set(TEST_CLIENT_SOURCE
-  IGTLCommunicationBase.cxx
+  OpenIGTLinkSockUtil.cxx
   TestClientProtocolBase.cxx
   TestClientProtocolNormal.cxx
   TestClientSimulator.cxx

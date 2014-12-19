@@ -38,7 +38,7 @@ ServerStandByPhase::~ServerStandByPhase()
 int ServerStandByPhase::Initialize()
 {
 
-  this->SendStatusMessage("STATE", igtl::StatusMessage::STATUS_OK, 0, this->Name());
+  this->SockUtil->SendStatusMessage("STATE", igtl::StatusMessage::STATUS_OK, 0, this->Name());
   return PHASE_CHANGE_NOT_REQUIRED;
 
 }
@@ -53,20 +53,20 @@ int ServerStandByPhase::MessageHandler(igtl::MessageHeader* headerMsg)
     return r;
     }
   
-  if (this->CheckMessageTypeAndName(headerMsg, "STT_TDATA", "TRACKING"))
+  if (this->SockUtil->CheckMessageTypeAndName(headerMsg, "STT_TDATA", "TRACKING"))
     {
     std::string coord;
     int res;
-    this->ReceiveStartTracking(headerMsg, coord, res);
-    this->SStatus->SetTrackingResolution(res);
-    this->SStatus->SetTrackingCoordinate(coord.c_str());
+    this->SockUtil->ReceiveStartTracking(headerMsg, coord, res);
+    this->ServerInfo->SetTrackingResolution(res);
+    this->ServerInfo->SetTrackingCoordinate(coord.c_str());
     this->SetNextWorkPhase("STANDBY");
     return PHASE_CHANGE_REQUIRED;
     }
-  else if (this->CheckMessageTypeAndName(headerMsg, "STRING", "NAME"))
+  else if (this->SockUtil->CheckMessageTypeAndName(headerMsg, "STRING", "NAME"))
     {
     std::string string;
-    this->ReceiveString(headerMsg, string);
+    this->SockUtil->ReceiveString(headerMsg, string);
     if (string.compare("INIT") == 0)
       {
       this->SetNextWorkPhase("INIT");

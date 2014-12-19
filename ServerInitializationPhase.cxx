@@ -37,7 +37,7 @@ ServerInitializationPhase::~ServerInitializationPhase()
 int ServerInitializationPhase::Initialize()
 {
 
-  this->SendStatusMessage("STATE", igtl::StatusMessage::STATUS_OK, 0, this->Name());
+  this->SockUtil->SendStatusMessage("STATE", igtl::StatusMessage::STATUS_OK, 0, this->Name());
 
   // Send Status after waiting for 2 seconds (mimicking initialization process)
   igtl::Sleep(2000); // wait for 2000 msec
@@ -45,13 +45,13 @@ int ServerInitializationPhase::Initialize()
   if (this->GetDefectStatus("DNR"))
     {
     // Device-not-ready defect is active
-    this->SendStatusMessage(this->Name(), igtl::StatusMessage::STATUS_NOT_READY, 0);
+    this->SockUtil->SendStatusMessage(this->Name(), igtl::StatusMessage::STATUS_NOT_READY, 0);
     return PHASE_CHANGE_NOT_REQUIRED;
     }
   else
     {
     // Normal
-    this->SendStatusMessage(this->Name(), 1, 0);
+    this->SockUtil->SendStatusMessage(this->Name(), 1, 0);
     this->SetNextWorkPhase("STANDBY");
     return PHASE_CHANGE_REQUIRED;
     }

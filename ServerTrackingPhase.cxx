@@ -61,7 +61,7 @@ ServerTrackingPhase::~ServerTrackingPhase()
 int ServerTrackingPhase::Initialize()
 {
 
-  this->SendStatusMessage("STATE", igtl::StatusMessage::STATUS_OK, 0, this->Name());
+  this->SockUtil->SendStatusMessage("STATE", igtl::StatusMessage::STATUS_OK, 0, this->Name());
   return PHASE_CHANGE_NOT_REQUIRED;
 
 }
@@ -76,16 +76,16 @@ int ServerTrackingPhase::MessageHandler(igtl::MessageHeader* headerMsg)
     return r;
     }
   
-  if (this->CheckMessageTypeAndName(headerMsg, "STP_TDATA", "TRACKING"))
+  if (this->SockUtil->CheckMessageTypeAndName(headerMsg, "STP_TDATA", "TRACKING"))
     {
-    this->ReceiveStopTracking(headerMsg);
+    this->SockUtil->ReceiveStopTracking(headerMsg);
     this->SetNextWorkPhase("STANDBY");
     return PHASE_CHANGE_REQUIRED;
     }
-  else if (this->CheckMessageTypeAndName(headerMsg, "STRING", "NAME"))
+  else if (this->SockUtil->CheckMessageTypeAndName(headerMsg, "STRING", "NAME"))
     {
     std::string string;
-    this->ReceiveString(headerMsg, string);
+    this->SockUtil->ReceiveString(headerMsg, string);
     if (string.compare("INIT") == 0)
       {
       this->SetNextWorkPhase("INIT");
@@ -103,7 +103,7 @@ int ServerTrackingPhase::TimerHandler(long timestamp)
 
   igtl::Matrix4x4 matrix;
 
-  this->GetRandomTestMatrix(matrix);
+  this->SockUtil->GetRandomTestMatrix(matrix);
 
   static float phi0   = 0.0;
   static float theta0 = 0.0;
@@ -116,21 +116,21 @@ int ServerTrackingPhase::TimerHandler(long timestamp)
 
   // Channel 0
   this->TrackingMsg->GetTrackingDataElement(0, ptr);
-  this->GetRandomTestMatrix(matrix, phi0, theta0);
+  this->SockUtil->GetRandomTestMatrix(matrix, phi0, theta0);
   ptr->SetMatrix(matrix);
   
   // Channel 1
   this->TrackingMsg->GetTrackingDataElement(1, ptr);
-  this->GetRandomTestMatrix(matrix, phi1, theta1);
+  this->SockUtil->GetRandomTestMatrix(matrix, phi1, theta1);
   ptr->SetMatrix(matrix);
   
   // Channel 2
   this->TrackingMsg->GetTrackingDataElement(2, ptr);
-  this->GetRandomTestMatrix(matrix, phi2, theta2);
+  this->SockUtil->GetRandomTestMatrix(matrix, phi2, theta2);
   ptr->SetMatrix(matrix);
 
   this->TrackingMsg->Pack();
-  this->PushMessage(this->TrackingMsg);
+  this->SockUtil->PushMessage(this->TrackingMsg);
   
   phi0 += 0.1;
   phi1 += 0.2;

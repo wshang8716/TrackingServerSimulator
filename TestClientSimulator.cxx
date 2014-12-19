@@ -17,6 +17,7 @@
 
 #include "igtlClientSocket.h"
 #include "TestClientProtocolNormal.h"
+#include "OpenIGTLinkSockUtil.h"
 
 int main(int argc, char* argv[])
 {
@@ -73,12 +74,15 @@ int main(int argc, char* argv[])
 
   if (testProtocol)
     {
+    OpenIGTLinkSockUtil * sockUtil = new OpenIGTLinkSockUtil();    
+    sockUtil->SetSocket(socket);
+
     // Set timeout values (ms)
     testProtocol->SetTimeoutShort(1000);
     testProtocol->SetTimeoutMedium(5000);
     testProtocol->SetTimeoutMedium(10000);
 
-    testProtocol->SetSocket(socket);
+    testProtocol->SetSockUtil(sockUtil);
     testProtocol->Exec();
     }
 

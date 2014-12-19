@@ -20,14 +20,14 @@
 #include "igtlSocket.h"
 #include "igtlMath.h"
 #include "igtlMessageBase.h"
-#include "IGTLCommunicationBase.h"
+#include "igtlMutexLock.h"
 
 class ServerInfoBase
 {
 public:
   ServerInfoBase();
   ~ServerInfoBase();
-  
+
   void SetCalibrationMatrix(igtl::Matrix4x4& matrix);
 
   // Return 0 if a calibration matrix has not been set.
@@ -44,6 +44,7 @@ public:
   // Name of the tracking coordinate system
   void SetTrackingCoordinate(const char* str) { this->TrackingCoordinate = str; }
   std::string GetTrackingCoordinate() { return this->TrackingCoordinate; }
+
 
 protected:
 

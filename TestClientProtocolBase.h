@@ -17,13 +17,13 @@
 #include "igtlSocket.h"
 #include "igtlMath.h"
 #include "igtlMessageBase.h"
-#include "IGTLCommunicationBase.h"
+#include "OpenIGTLinkSockUtil.h"
 
 #define DEFULT_TIMEOUT_SHORT  500
 #define DEFULT_TIMEOUT_MEDIUM 1000
 #define DEFULT_TIMEOUT_LONG   5000
 
-class TestClientProtocolBase : public IGTLCommunicationBase
+class TestClientProtocolBase
 {
 public:
 
@@ -87,7 +87,11 @@ public:
   inline int GetTimeoutMedium() { return this->TimeoutMedium; }
   inline int GetTimeoutLong()   { return this->TimeoutLong;   }
 
+  void SetSockUtil(OpenIGTLinkSockUtil* su) { this->SockUtil = su; }
+
 protected:
+
+  OpenIGTLinkSockUtil* SockUtil;
 
 };
 

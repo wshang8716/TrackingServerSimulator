@@ -13,6 +13,7 @@
 
 
 #include "SessionController.h"
+#include "OpenIGTLinkSockUtil.h"
 #include "igtlOSUtil.h"
 #include "igtlServerSocket.h"
 #include "igtlMultiThreader.h"
@@ -259,19 +260,21 @@ int SessionController::Session()
 {
 
   ServerInfoBase * rs = new ServerInfoBase();
+  OpenIGTLinkSockUtil * sockUtil = new OpenIGTLinkSockUtil();
+  
+  sockUtil->SetSocket(this->Socket);
 
   //------------------------------------------------------------
   // Set socket and robot status
   std::vector< ServerPhaseBase* >::iterator iter;
   for (iter = PhaseList.begin(); iter != PhaseList.end(); iter ++)
     {
-    //std::cerr << "MESSAGE: Setting up " << (*iter)->Name() << " phase." << std::endl;
-    (*iter)->SetSocket(this->Socket);
+    (*iter)->SetServerInfo(rs);
     (*iter)->SetServerInfo(rs);
     }
 
   //------------------------------------------------------------
-  // Set undefined phase as the current phase;
+  // Set initial phase as the current phase;
   //WorkphaseList::iterator currentPhase = PhaseList.begin();
   this->CurrentPhase = PhaseList[0];
   
