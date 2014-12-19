@@ -12,7 +12,7 @@ include(${OpenIGTLink_USE_FILE})
 
 set(TRACKING_SERVER_SOURCE
   IGTLCommunicationBase.cxx
-  ServerStatus.cxx
+  ServerInfoBase.cxx
   ServerPhaseBase.cxx
   ServerUndefinedPhase.cxx
   ServerInitializationPhase.cxx

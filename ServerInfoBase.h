@@ -11,8 +11,8 @@
 
 =========================================================================*/
 
-#ifndef __ServerStatus_h
-#define __ServerStatus_h
+#ifndef __ServerInfoBase_h
+#define __ServerInfoBase_h
 
 #include <string>
 #include <map>
@@ -22,11 +22,11 @@
 #include "igtlMessageBase.h"
 #include "IGTLCommunicationBase.h"
 
-class ServerStatus
+class ServerInfoBase
 {
 public:
-  ServerStatus();
-  ~ServerStatus();
+  ServerInfoBase();
+  ~ServerInfoBase();
   
   void SetCalibrationMatrix(igtl::Matrix4x4& matrix);
 
@@ -59,4 +59,4 @@ protected:
 
 
 
-#endif //__ServerStatus_h
+#endif //__ServerInfoBase_h

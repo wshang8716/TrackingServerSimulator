@@ -61,7 +61,7 @@ public:
   // Set an interval for the timer
   void SetTimerInterval(int intv) { this->TimerInterval = intv; }
 
-  void SetServerStatus(ServerStatus* status) { this->SStatus = status; }
+  void SetServerInfo(ServerInfoBase* status) { this->SStatus = status; }
 
   int  Run();
 
@@ -86,7 +86,7 @@ protected:
 
   bool ThreadAlive;
 
-  ServerStatus* SStatus;
+  ServerInfoBase* SStatus;
 
 };
 

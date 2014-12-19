@@ -30,7 +30,7 @@
 #include "ServerStartUpPhase.h"
 #include "ServerStandByPhase.h"
 
-#include "ServerStatus.h"
+#include "ServerInfoBase.h"
 #include "SessionController.h"
 
 
@@ -39,9 +39,9 @@ int main(int argc, char* argv[])
 
   SessionController * controller = new SessionController;
 
-  // Must create ServerStatus object before registering phases. 
-  ServerStatus * sstatus = new ServerStatus;
-  controller->SetServerStatus(sstatus);
+  // Must create ServerInfoBase object before registering phases. 
+  ServerInfoBase * sinfo = new ServerInfoBase;
+  controller->SetServerInfo(sinfo);
 
   //------------------------------------------------------------
   // Setup workphases

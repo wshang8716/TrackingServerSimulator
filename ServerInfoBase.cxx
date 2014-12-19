@@ -11,10 +11,10 @@
 
 =========================================================================*/
 
-#include "ServerStatus.h"
+#include "ServerInfoBase.h"
 #include "igtlMath.h"
 
-ServerStatus::ServerStatus()
+ServerInfoBase::ServerInfoBase()
 {
   igtl::IdentityMatrix(this->CalibrationMatrix);
   igtl::IdentityMatrix(this->TargetMatrix);
@@ -22,11 +22,11 @@ ServerStatus::ServerStatus()
   this->FlagTarget = 0;
 }
 
-ServerStatus::~ServerStatus()
+ServerInfoBase::~ServerInfoBase()
 {
 }
 
-void ServerStatus::SetCalibrationMatrix(igtl::Matrix4x4& matrix)
+void ServerInfoBase::SetCalibrationMatrix(igtl::Matrix4x4& matrix)
 {
   this->FlagCalibration = 1;
   for (int i = 0; i < 4; i ++)
@@ -38,7 +38,7 @@ void ServerStatus::SetCalibrationMatrix(igtl::Matrix4x4& matrix)
     }
 }
 
-int ServerStatus::GetCalibrationMatrix(igtl::Matrix4x4& matrix)
+int ServerInfoBase::GetCalibrationMatrix(igtl::Matrix4x4& matrix)
 {
   if (this->FlagCalibration)
     {
@@ -58,7 +58,7 @@ int ServerStatus::GetCalibrationMatrix(igtl::Matrix4x4& matrix)
 }
 
 
-void ServerStatus::SetTargetMatrix(igtl::Matrix4x4& matrix)
+void ServerInfoBase::SetTargetMatrix(igtl::Matrix4x4& matrix)
 {
   this->FlagTarget = 1;
 
@@ -73,7 +73,7 @@ void ServerStatus::SetTargetMatrix(igtl::Matrix4x4& matrix)
 }
 
 
-int ServerStatus::GetTargetMatrix(igtl::Matrix4x4& matrix)
+int ServerInfoBase::GetTargetMatrix(igtl::Matrix4x4& matrix)
 {
   if (this->FlagTarget)
     {

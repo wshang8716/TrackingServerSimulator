@@ -21,7 +21,7 @@
 #include "igtlMath.h"
 #include "igtlMessageBase.h"
 #include "IGTLCommunicationBase.h"
-#include "ServerStatus.h"
+#include "ServerInfoBase.h"
 
 
 class ServerPhaseBase : public IGTLCommunicationBase
@@ -88,7 +88,7 @@ public:
   std::list< std::string > GetDefectTypeList();
   std::string GetDefectTypeDescription(const char * type);
 
-  void SetServerStatus(ServerStatus* rs) { this->SStatus = rs; };
+  void SetServerInfo(ServerInfoBase* rs) { this->SStatus = rs; };
 
 protected:
 
@@ -109,7 +109,7 @@ protected:
   std::map< std::string, int > DefectStatus;
   std::map< std::string, std::string > DefectDescription;
 
-  ServerStatus* SStatus;
+  ServerInfoBase* SStatus;
 
 };
 

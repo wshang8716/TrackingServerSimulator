@@ -45,7 +45,7 @@ int SessionController::RegisterPhase(ServerPhaseBase* phase)
 
   if (!this->SStatus)
     {
-    std::cerr << "ERROR: ServerStatus object is not available." << std::endl;
+    std::cerr << "ERROR: ServerInfoBase object is not available." << std::endl;
     return this->PhaseList.size();
     }
 
@@ -56,7 +56,7 @@ int SessionController::RegisterPhase(ServerPhaseBase* phase)
     }
   
   this->PhaseList.push_back(phase);
-  phase->SetServerStatus(this->SStatus);
+  phase->SetServerInfo(this->SStatus);
   return this->PhaseList.size();
 
 }
@@ -258,7 +258,7 @@ void SessionController::MonitorThread(void * ptr)
 int SessionController::Session()
 {
 
-  ServerStatus * rs = new ServerStatus();
+  ServerInfoBase * rs = new ServerInfoBase();
 
   //------------------------------------------------------------
   // Set socket and robot status
@@ -267,7 +267,7 @@ int SessionController::Session()
     {
     //std::cerr << "MESSAGE: Setting up " << (*iter)->Name() << " phase." << std::endl;
     (*iter)->SetSocket(this->Socket);
-    (*iter)->SetServerStatus(rs);
+    (*iter)->SetServerInfo(rs);
     }
 
   //------------------------------------------------------------
