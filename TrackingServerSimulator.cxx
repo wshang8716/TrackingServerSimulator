@@ -25,7 +25,6 @@
 #include "igtlTimeStamp.h"
 
 #include "ServerPhaseBase.h"
-#include "ServerUndefinedPhase.h"
 #include "ServerInitializationPhase.h"
 #include "ServerStartUpPhase.h"
 #include "ServerStandByPhase.h"
