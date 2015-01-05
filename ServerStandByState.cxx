@@ -26,7 +26,7 @@ ServerStandByState::ServerStandByState() :
   ServerStateBase()
 {
   // Register Device-not-ready defect
-  this->RegisterDefectType("DNR", "Device-not-ready in START_UP phase.");
+  this->RegisterDefectType("DNR", "Device-not-ready in STANDBY phase.");
 }
 
 
@@ -55,15 +55,17 @@ int ServerStandByState::MessageHandler(igtl::MessageHeader* headerMsg)
   
   if (this->SockUtil->CheckMessageTypeAndName(headerMsg, "STT_TDATA", "TRACKING"))
     {
+
+    std::cerr << "STT_TDAT received" << std::endl;
     std::string coord;
     int res;
     this->SockUtil->ReceiveStartTracking(headerMsg, coord, res);
     this->ServerInfo->SetTrackingResolution(res);
     this->ServerInfo->SetTrackingCoordinate(coord.c_str());
-    this->SetNextWorkState("STANDBY");
+    this->SetNextWorkState("TRACKING");
     return PHASE_CHANGE_REQUIRED;
     }
-  else if (this->SockUtil->CheckMessageTypeAndName(headerMsg, "STRING", "NAME"))
+  else if (this->SockUtil->CheckMessageTypeAndName(headerMsg, "STRING", "CMD"))
     {
     std::string string;
     this->SockUtil->ReceiveString(headerMsg, string);

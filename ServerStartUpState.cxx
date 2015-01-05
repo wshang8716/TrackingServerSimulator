@@ -26,7 +26,7 @@ ServerStartUpState::ServerStartUpState() :
   ServerStateBase()
 {
   // Register Device-not-ready defect
-  this->RegisterDefectType("DNR", "Device-not-ready in START_UP phase.");
+  this->RegisterDefectType("DNR", "Device-not-ready in STARTUP phase.");
 }
 
 
@@ -47,6 +47,17 @@ int ServerStartUpState::MessageHandler(igtl::MessageHeader* headerMsg)
   if (r != NOT_PROCESSED)
     {
     return r;
+    }
+
+  if (this->SockUtil->CheckMessageTypeAndName(headerMsg, "STRING", "CMD"))
+    {
+    std::string string;
+    this->SockUtil->ReceiveString(headerMsg, string);
+    if (string.compare("INIT") == 0)
+      {
+      this->SetNextWorkState("INIT");
+      return PHASE_CHANGE_REQUIRED;
+      }
     }
 
   // Implement message handling specific to this class here

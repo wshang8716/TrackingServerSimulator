@@ -28,6 +28,7 @@
 #include "ServerInitializationState.h"
 #include "ServerStartUpState.h"
 #include "ServerStandByState.h"
+#include "ServerTrackingState.h"
 
 #include "ServerInfoBase.h"
 #include "SessionController.h"
@@ -44,9 +45,10 @@ int main(int argc, char* argv[])
 
   //------------------------------------------------------------
   // Setup workphases
-  controller->RegisterState(new ServerInitializationState);
   controller->RegisterState(new ServerStartUpState);
+  controller->RegisterState(new ServerInitializationState);
   controller->RegisterState(new ServerStandByState);
+  controller->RegisterState(new ServerTrackingState);
 
   //------------------------------------------------------------
   // Parse Arguments

@@ -25,6 +25,7 @@
 
 OpenIGTLinkSockUtil::OpenIGTLinkSockUtil()
 {
+  this->Socket = NULL;
   this->Mutex = igtl::MutexLock::New();
 }
 
@@ -425,6 +426,7 @@ int OpenIGTLinkSockUtil::SendStatusMessage(const char* name, int Code, int SubCo
     }
   statusMsg->Pack();
   //int r = this->Socket->Send(statusMsg->GetPackPointer(), statusMsg->GetPackSize());
+
   int r = this->PushMessage(statusMsg);
 
   if (!r)
@@ -432,6 +434,33 @@ int OpenIGTLinkSockUtil::SendStatusMessage(const char* name, int Code, int SubCo
     std::cerr << "ERROR: Sending STATUS( " << name << " )" << std::endl;
     exit(0);
     }
+
+  return 1;
+}
+
+
+int OpenIGTLinkSockUtil::SendStartTrackingDataMessage(const char* name, 
+                                                      int res, const char* coord)
+{
+  igtl::StartTrackingDataMessage::Pointer startTrackingMsg;
+  startTrackingMsg = igtl::StartTrackingDataMessage::New();
+  startTrackingMsg->SetDeviceName(name);
+  startTrackingMsg->SetResolution(res);
+  startTrackingMsg->SetCoordinateName(coord);
+  startTrackingMsg->Pack();
+  this->PushMessage(startTrackingMsg);
+
+  return 1;
+}
+
+
+int OpenIGTLinkSockUtil::SendStopTrackingDataMessage(const char* name)
+{
+  igtl::StopTrackingDataMessage::Pointer stopTrackingMsg;
+  stopTrackingMsg = igtl::StopTrackingDataMessage::New();
+  stopTrackingMsg->SetDeviceName(name);
+  stopTrackingMsg->Pack();
+  this->PushMessage(stopTrackingMsg);
 
   return 1;
 }

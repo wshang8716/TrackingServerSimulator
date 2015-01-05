@@ -37,134 +37,77 @@ TestClientProtocolNormal::ErrorPointType TestClientProtocolNormal::Test()
   igtl::MessageHeader::Pointer headerMsg;
   headerMsg = igtl::MessageHeader::New();
 
-  std::cerr << "MESSAGE: ===== Step 1: START_UP =====" << std::endl;
-  this->SockUtil->SendStringMessage("CMD_0001", "START_UP");
+  std::cerr << "MESSAGE: ===== Step 1: Initialization =====" << std::endl;
+  this->SockUtil->SendStringMessage("CMD", "INIT");
+
+  this->SockUtil->ReceiveMessageHeader(headerMsg, this->TimeoutLong);
+  if (!this->SockUtil->CheckAndReceiveStatusMessage(headerMsg, "STATE", 1, 0, "INIT"))
+    return Error(1,1);
+
+  this->SockUtil->ReceiveMessageHeader(headerMsg, this->TimeoutLong);
+  if (!this->SockUtil->CheckAndReceiveStatusMessage(headerMsg, "INIT", 1, 0, ""))
+    return Error(1,1);
+
+  std::cerr << "MESSAGE: ===== Step 2: Stand By =====" << std::endl;
   this->SockUtil->ReceiveMessageHeader(headerMsg, this->TimeoutShort);
-  if (!this->SockUtil->CheckAndReceiveStringMessage(headerMsg, "ACK_0001", "START_UP")) return Error(1,1);
-  this->SockUtil->ReceiveMessageHeader(headerMsg, this->TimeoutLong);
-  if (!this->SockUtil->CheckAndReceiveStatusMessage(headerMsg, "CURRENT_STATUS", 1, 0, "START_UP")) return Error(1,2);
-  this->SockUtil->ReceiveMessageHeader(headerMsg, this->TimeoutLong);
-  if (!this->SockUtil->CheckAndReceiveStatusMessage(headerMsg, "START_UP", 1)) return Error(1,3);
+  if (!this->SockUtil->CheckAndReceiveStatusMessage(headerMsg, "STATE", 1, 0, "STANDBY"))
+    return Error(2,1);
 
-  std::cerr << "MESSAGE: ===== Step 2: PLANNING =====" << std::endl;
-  this->SockUtil->SendStringMessage("CMD_0002", "PLANNING");
-  this->SockUtil->ReceiveMessageHeader(headerMsg, this->TimeoutMedium);
-  if (!this->SockUtil->CheckAndReceiveStringMessage(headerMsg, "ACK_0002", "PLANNING")) return Error(2,1);
+  std::cerr << "MESSAGE: ===== Step 3: Tracking =====" << std::endl;
+  this->SockUtil->SendStartTrackingDataMessage("TRACKING", 100, "Patient");
+
   this->SockUtil->ReceiveMessageHeader(headerMsg, this->TimeoutLong);
-  if (!this->SockUtil->CheckAndReceiveStatusMessage(headerMsg, "CURRENT_STATUS", 1, 0, "PLANNING")) return Error(2,2);
+  if (!this->SockUtil->CheckAndReceiveStatusMessage(headerMsg, "STATE", 1, 0, "TRACKING"))
+    return Error(3,1);
   
-  std::cerr << "MESSAGE: ===== Step 3: CALIBRATION =====" << std::endl;
-  this->SockUtil->SendStringMessage("CMD_0003", "CALIBRATION");
-  this->SockUtil->ReceiveMessageHeader(headerMsg, this->TimeoutMedium);
-  if (!this->SockUtil->CheckAndReceiveStringMessage(headerMsg, "ACK_0003", "CALIBRATION")) return Error(3,1);
-  this->SockUtil->ReceiveMessageHeader(headerMsg, this->TimeoutLong);
-  if (!this->SockUtil->CheckAndReceiveStatusMessage(headerMsg, "CURRENT_STATUS", 1, 0, "CALIBRATION")) return Error(3,2);
-
-  igtl::Matrix4x4 matrix;
-  //GetRandomTestMatrix(matrix);
-  igtl::IdentityMatrix(matrix);
-  this->SockUtil->SendTransformMessage("CLB_0004", matrix);
-  this->SockUtil->ReceiveMessageHeader(headerMsg, this->TimeoutMedium);
-  if (!this->SockUtil->CheckAndReceiveTransformMessage(headerMsg, "ACK_0004", matrix)) return Error(3,3);
-  // TODO: How can we differenciate Error(3,2) and Error(3,3)?
-  
-  this->SockUtil->ReceiveMessageHeader(headerMsg, this->TimeoutLong);
-  if (!this->SockUtil->CheckAndReceiveStatusMessage(headerMsg, "CALIBRATION", 1)) return Error(3,5);
-
-  std::cerr << "MESSAGE: ===== Step 4: TARGETING =====" << std::endl;
-  this->SockUtil->SendStringMessage("CMD_0005", "TARGETING");
-  this->SockUtil->ReceiveMessageHeader(headerMsg, this->TimeoutMedium);
-  if (!this->SockUtil->CheckAndReceiveStringMessage(headerMsg, "ACK_0005", "TARGETING")) return Error(4,1);
-  this->SockUtil->ReceiveMessageHeader(headerMsg, this->TimeoutLong);
-  if (!this->SockUtil->CheckAndReceiveStatusMessage(headerMsg, "CURRENT_STATUS", 1, 0, "TARGETING")) return Error(4,2);
-  this->SockUtil->ReceiveMessageHeader(headerMsg, this->TimeoutLong);
-  if (!this->SockUtil->CheckAndReceiveStatusMessage(headerMsg, "TARGETING", 1)) return Error(4,3);
-
-  //GetRandomTestMatrix(matrix);
-  igtl::IdentityMatrix(matrix);  
-  this->SockUtil->SendTransformMessage("TGT_0006", matrix);
-  this->SockUtil->ReceiveMessageHeader(headerMsg, this->TimeoutMedium);
-  if (!this->SockUtil->CheckAndReceiveTransformMessage(headerMsg, "ACK_0006", matrix)) return Error(4,4);
-  // TODO: Check the matrix for point 4.5
-
-  this->SockUtil->ReceiveMessageHeader(headerMsg, this->TimeoutLong);
-  if (!this->SockUtil->CheckAndReceiveStatusMessage(headerMsg, "TARGET", 1)) return Error(4,6);
-  this->SockUtil->ReceiveMessageHeader(headerMsg, this->TimeoutMedium);
-  if (!this->SockUtil->CheckAndReceiveTransformMessage(headerMsg, "TARGET", matrix)) return Error(4,7);
-  // TODO: Check the matrix for point 4.8
-  
-  std::cerr << "MESSAGE: ===== Step 5: MOVE_TO_TARGET =====" << std::endl;
-  this->SockUtil->SendStringMessage("CMD_0007", "MOVE_TO_TARGET");
-  this->SockUtil->ReceiveMessageHeader(headerMsg, this->TimeoutMedium);
-  if (!this->SockUtil->CheckAndReceiveStringMessage(headerMsg, "ACK_0007", "MOVE_TO_TARGET")) return Error(5,1);
-  this->SockUtil->ReceiveMessageHeader(headerMsg, this->TimeoutLong);
-  if (!this->SockUtil->CheckAndReceiveStatusMessage(headerMsg, "CURRENT_STATUS", 1, 0, "MOVE_TO_TARGET")) return Error(5,2);
-
-  int fCurrentPositionReceived = 0;
+  int positionCount = 0;
   for (;;) // Can receive more than 1 transform message
     {
     this->SockUtil->ReceiveMessageHeader(headerMsg, this->TimeoutLong);
-    if (strcmp(headerMsg->GetDeviceType(), "TRANSFORM") == 0)
+    if (this->SockUtil->CheckMessageTypeAndName(headerMsg, "TDATA", "TRACKING"))
       {
-      if (!this->SockUtil->CheckAndReceiveTransformMessage(headerMsg, "CURRENT_POSITION", matrix, -1))
-        {
-          return Error(5,3);
-        }
-      else
-        {
-        fCurrentPositionReceived = 1;
-        }
+      this->SockUtil->SkipMesage(headerMsg);
+      positionCount ++;
       }
-    else
+    else if (this->SockUtil->CheckMessageTypeAndName(headerMsg, "TDATA", "TRACKING"))
+      {
+      return Error(3,2);
+      }
+    // Quit loop after receiving 100 TDATA messages
+    if (positionCount > 100)
       {
       break;
       }
     }
   
-  //ReceiveMessageHeader(headerMsg, this->TimeoutShort); // TODO: timeout is not valid
-  if (!this->SockUtil->CheckAndReceiveStatusMessage(headerMsg, "MOVE_TO_TARGET", 1)) return Error(5,4);
+  std::cerr << "MESSAGE: ===== Step 4: Stand by =====" << std::endl;
+  this->SockUtil->SendStopTrackingDataMessage("TRACKING");
 
-  this->SockUtil->ReceiveMessageHeader(headerMsg, this->TimeoutMedium);
-  if (!this->SockUtil->CheckAndReceiveTransformMessage(headerMsg, "CURRENT_POSITION", matrix)) return Error(5,5);
+  for (;;) // Can receive more than 1 transform message
+    {
+    this->SockUtil->ReceiveMessageHeader(headerMsg, this->TimeoutLong);
 
-  // TODO: Check if the received CURRENTPOSITION is close enough to the target. Error(5,5)
-
-  std::cerr << "MESSAGE: ===== Step 6: MANUAL =====" << std::endl;  
-  this->SockUtil->SendStringMessage("CMD_0008", "MANUAL");
-  this->SockUtil->ReceiveMessageHeader(headerMsg, this->TimeoutMedium);
-  if (!this->SockUtil->CheckAndReceiveStringMessage(headerMsg, "ACK_0008", "MANUAL")) return Error(6,1);
-  this->SockUtil->ReceiveMessageHeader(headerMsg, this->TimeoutLong);
-  if (!this->SockUtil->CheckAndReceiveStatusMessage(headerMsg, "CURRENT_STATUS", 1, 0, "MANUAL")) return Error(6,2);
-
-  this->SockUtil->ReceiveMessageHeader(headerMsg, this->TimeoutLong); // TODO: timeout is not valid
-  if (!this->SockUtil->CheckAndReceiveStatusMessage(headerMsg, "MANUAL", 1)) return Error(6,3);
-
-  //send GET_TRANSFORM(CURRENT_POSITION)
-  //if (not receive TRANSFORM(CURRENT_POSITION, matrix8) within 10s) failure
-  //if (matrix 8 does not match the current position of the robot) failure
-  //
-  //send GET_STATUS(CURRENT_STATUS)
-  //if (not receive STATUS(XXXXX, Code:??:??) within 10s) failure
-
-  std::cerr << "MESSAGE: ===== Step 9: STOP =====" << std::endl;  
-  this->SockUtil->SendStringMessage("CMD_0009", "STOP");
-  this->SockUtil->ReceiveMessageHeader(headerMsg, this->TimeoutMedium);
-  if (!this->SockUtil->CheckAndReceiveStringMessage(headerMsg, "ACK_0009", "STOP")) return Error(9,1);
-  this->SockUtil->ReceiveMessageHeader(headerMsg, this->TimeoutLong);
-  if (!this->SockUtil->CheckAndReceiveStatusMessage(headerMsg, "CURRENT_STATUS", 1, 0, "STOP")) return Error(9,2);
-
-  this->SockUtil->ReceiveMessageHeader(headerMsg, this->TimeoutLong); // TODO: timeout is not valid
-  if (!this->SockUtil->CheckAndReceiveStatusMessage(headerMsg, "STOP", 1)) return Error(9,3);
-
-  std::cerr << "MESSAGE: ===== Step 10: EMERGENCY =====" << std::endl;  
-  this->SockUtil->SendStringMessage("CMD_0010", "EMERGENCY");
-  this->SockUtil->ReceiveMessageHeader(headerMsg, this->TimeoutMedium);
-  if (!this->SockUtil->CheckAndReceiveStringMessage(headerMsg, "ACK_0010", "EMERGENCY")) return Error(10,1);
-  this->SockUtil->ReceiveMessageHeader(headerMsg, this->TimeoutLong);
-  if (!this->SockUtil->CheckAndReceiveStatusMessage(headerMsg, "CURRENT_STATUS", 1, 0, "EMERGENCY")) return Error(10,2);
-
-  this->SockUtil->ReceiveMessageHeader(headerMsg, this->TimeoutLong); // TODO: timeout is not valid
-  if (!this->SockUtil->CheckAndReceiveStatusMessage(headerMsg, "EMERGENCY", 1)) return Error(10,3);
-  
+    // Receive TDATA messages sent before STP_TDATA was received by the server
+    if (this->SockUtil->CheckMessageTypeAndName(headerMsg, "TDATA", "TRACKING"))
+      {
+      this->SockUtil->SkipMesage(headerMsg);
+      }
+    else if (this->SockUtil->CheckMessageTypeAndName(headerMsg, "STATE", "STANDBY"))
+      {
+      if (this->SockUtil->CheckAndReceiveStatusMessage(headerMsg, "STATE", 1, 0, "STANDBY"))
+        {
+        break;
+        }
+      else
+        {
+        Error(4,2);
+        }
+      }
+    else
+      {
+      return Error(4,1);
+      }
+    }
+    
   return SUCCESS;
 }

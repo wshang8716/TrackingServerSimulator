@@ -49,7 +49,6 @@ public:
 
   int  SkipMesage(igtl::MessageHeader* headerMsg);
 
-
   // Send STRING message
   int  SendStringMessage(const char* name, const char* string);
 
@@ -58,6 +57,13 @@ public:
                          const char * errorName=NULL, const char* statusString=NULL);
   // Send TRANSFORM message
   int  SendTransformMessage(const char* name, igtl::Matrix4x4& matrix);
+
+  // Send STT_TDATA message
+  int SendStartTrackingDataMessage(const char* name, int res, const char* coord);
+
+  // Send STP_TDATA message
+  int SendStopTrackingDataMessage(const char* name);
+
 
   // Receive STATUS message
   int  ReceiveStatus(igtl::MessageHeader* header, int& code, int& subcode,
@@ -76,7 +82,6 @@ public:
   // Receive STP_TDATA message
   int  ReceiveStopTracking(igtl::MessageHeader* header);
 
-  
   /// Check if the received messsage is STRING message, and if the message has
   /// the specfied name and content. If suffix=1 is specified, the function
   /// only checks if the message name begins with the string specified by 'name'.

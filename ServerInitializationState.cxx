@@ -26,7 +26,7 @@ ServerInitializationState::ServerInitializationState() :
   ServerStateBase()
 {
   // Register Device-not-ready defect
-  this->RegisterDefectType("DNR", "Device-not-ready in START_UP phase.");
+  this->RegisterDefectType("DNR", "Device-not-ready in INIT phase.");
 }
 
 
@@ -38,9 +38,6 @@ int ServerInitializationState::Initialize()
 {
 
   this->SockUtil->SendStatusMessage("STATE", igtl::StatusMessage::STATUS_OK, 0, this->Name());
-
-  // Send Status after waiting for 2 seconds (mimicking initialization process)
-  igtl::Sleep(2000); // wait for 2000 msec
 
   if (this->GetDefectStatus("DNR"))
     {

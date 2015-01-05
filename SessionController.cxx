@@ -265,12 +265,12 @@ int SessionController::Session()
   sockUtil->SetSocket(this->Socket);
 
   //------------------------------------------------------------
-  // Set socket and robot status
+  // Set SockUtil and ServerInfo
   std::vector< ServerStateBase* >::iterator iter;
   for (iter = StateList.begin(); iter != StateList.end(); iter ++)
     {
     (*iter)->SetServerInfo(rs);
-    (*iter)->SetServerInfo(rs);
+    (*iter)->SetSockUtil(sockUtil);
     }
 
   //------------------------------------------------------------

@@ -39,7 +39,7 @@ ServerStateBase::~ServerStateBase()
 int ServerStateBase::Enter()
 {
   // Display the new phase
-  std::cerr << "Enter State: " << this->Name() << std::endl;
+  std::cerr << "MESSAGE: Enter State: " << this->Name() << std::endl;
   return this->Initialize();
 }
 

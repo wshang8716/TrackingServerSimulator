@@ -26,7 +26,7 @@ ServerTrackingState::ServerTrackingState() :
   ServerStateBase()
 {
   // Register Device-not-ready defect
-  this->RegisterDefectType("DNR", "Device-not-ready in START_UP phase.");
+  this->RegisterDefectType("DNR", "Device-not-ready in TRACKING phase.");
 
   this->TrackingMsg = igtl::TrackingDataMessage::New();
   this->TrackingMsg->SetDeviceName("TRACKING");
@@ -82,7 +82,7 @@ int ServerTrackingState::MessageHandler(igtl::MessageHeader* headerMsg)
     this->SetNextWorkState("STANDBY");
     return PHASE_CHANGE_REQUIRED;
     }
-  else if (this->SockUtil->CheckMessageTypeAndName(headerMsg, "STRING", "NAME"))
+  else if (this->SockUtil->CheckMessageTypeAndName(headerMsg, "STRING", "CMD"))
     {
     std::string string;
     this->SockUtil->ReceiveString(headerMsg, string);
@@ -102,8 +102,6 @@ int ServerTrackingState::TimerHandler(long timestamp)
   std::cerr << "ServerTrackingState::TimerHandler() is called" << std::endl;
 
   igtl::Matrix4x4 matrix;
-
-  this->SockUtil->GetRandomTestMatrix(matrix);
 
   static float phi0   = 0.0;
   static float theta0 = 0.0;

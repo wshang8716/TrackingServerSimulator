@@ -1,6 +1,6 @@
 /*=========================================================================
 
-  Program:   OpenIGTLink Communication Server: StandBy State
+  Program:   OpenIGTLink Communication Server: StandBy Stated
   Language:  C++
 
   Copyright (c) Brigham and Women's Hospital. All rights reserved.
@@ -26,7 +26,7 @@ public:
   ServerStandByState();
   ~ServerStandByState();
 
-  virtual const char* Name() { return "STARTUP"; };
+  virtual const char* Name() { return "STANDBY"; };
 
   virtual int Initialize();
   virtual int MessageHandler(igtl::MessageHeader* headerMsg);

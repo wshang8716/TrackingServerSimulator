@@ -26,7 +26,7 @@ public:
   ServerTrackingState();
   ~ServerTrackingState();
 
-  virtual const char* Name() { return "STARTUP"; };
+  virtual const char* Name() { return "TRACKING"; };
 
   virtual int Initialize();
   virtual int MessageHandler(igtl::MessageHeader* headerMsg);
