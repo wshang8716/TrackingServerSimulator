@@ -31,21 +31,21 @@ In this simple example, three states for the server are defined:
 3. *Tracking:* The server repeats sending dummy tracking data to the client until
   it receives a stop command.
 
-> 
->     +----------+
->     | Start Up |
->     +----------+
->          |
->          v
->   +--------------+
->   |Initialization|<-------+
->   +--------------+        |
->         |  ^              |
->         v  |              |
->     +----------+     +----------+
->     | Stand by |<--->| Tracking |
->     +----------+     +----------+
->
+```
+     +----------+
+     | Start Up |
+     +----------+
+          |
+          v
+   +--------------+
+   |Initialization|<-------+
+   +--------------+        |
+         |  ^              |
+         v  |              |
+     +----------+     +----------+
+     | Stand by |<--->| Tracking |
+     +----------+     +----------+
+```
 
 
 
