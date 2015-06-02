@@ -298,7 +298,7 @@ int SessionController::Session()
       fStateChange = this->CurrentState->Process();
       }
 
-    if (fStateChange)
+    if (fStateChange == ServerStateBase::PHASE_CHANGE_REQUIRED)
       {
       // If Enter() or Process() returns 1, phase change has been requested.
       std::cerr << "MESSAGE: State change requested." << std::endl;
